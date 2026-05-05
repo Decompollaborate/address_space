@@ -3,7 +3,7 @@
 
 use core::{fmt, ops};
 
-use super::VramOffset;
+use super::{VramOffset, utils};
 
 /// A VRAM (Virtual RAM) address.
 ///
@@ -91,8 +91,8 @@ impl Vram {
     /// assert_eq!(vram.align_down(8), Vram::new(0x800000A0));
     /// ```
     #[must_use = "this returns the result of the operation, without modifying the original"]
-    pub const fn align_down(&self, alignment: u8) -> Self {
-        let shift = alignment.ilog2();
+    pub fn align_down(&self, alignment: u8) -> Self {
+        let shift = utils::u8_ilog2(alignment);
 
         // Strip the lower bits by shifting.
         Self::new((self.inner >> shift) << shift)

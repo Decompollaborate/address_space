@@ -35,7 +35,7 @@ impl UserSize {
     }
 
     #[must_use]
-    pub const fn add_user_size(&self, rhs: &Self) -> Self {
+    pub fn add_user_size(&self, rhs: &Self) -> Self {
         let slf = self.inner().get();
         let temp = slf.checked_add(rhs.inner().get()).unwrap();
 
@@ -43,7 +43,7 @@ impl UserSize {
     }
 
     #[must_use]
-    pub const fn add_size(&self, rhs: &Size) -> Self {
+    pub fn add_size(&self, rhs: &Size) -> Self {
         let slf = self.inner().get();
         let temp = slf.checked_add(rhs.inner()).unwrap();
 
@@ -51,7 +51,7 @@ impl UserSize {
     }
 
     #[must_use]
-    pub const fn add_vram(&self, rhs: &Vram) -> Vram {
+    pub fn add_vram(&self, rhs: &Vram) -> Vram {
         let slf = self.inner().get();
         let temp = slf.checked_add(rhs.inner()).unwrap();
 
@@ -59,7 +59,7 @@ impl UserSize {
     }
 
     #[must_use]
-    pub const fn add_rom(&self, rhs: &Rom) -> Rom {
+    pub fn add_rom(&self, rhs: &Rom) -> Rom {
         let slf = self.inner().get();
         let temp = slf.checked_add(rhs.inner()).unwrap();
 

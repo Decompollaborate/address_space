@@ -24,12 +24,16 @@ categories = [
 # cargo install cargo-msrv --locked --force
 # cargo msrv find
 # ```
-# rust-version = "1.83"
+# rust-version = "1.66"
 
 [features]
 default = []
 
 std = []
+
+# Implement the Error trait on error types.
+# Bumps the MSRV to 1.81
+error = []
 
 [dependencies]
 

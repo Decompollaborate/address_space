@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use core::{error, fmt, ops, convert::TryFrom};
+use core::{fmt, ops, convert::TryFrom};
 
 use super::{Rom, Vram, VramOffset};
 
@@ -122,7 +122,8 @@ impl fmt::Display for ConvertToSizeError {
         )
     }
 }
-impl error::Error for ConvertToSizeError {}
+#[cfg(feature = "error")]
+impl core::error::Error for ConvertToSizeError {}
 
 impl TryFrom<VramOffset> for Size {
     type Error = ConvertToSizeError;

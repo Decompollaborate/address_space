@@ -116,6 +116,8 @@ mod gp_value;
 mod address_range;
 mod rom_vram_range;
 
+pub(crate) mod utils;
+
 pub use vram::Vram;
 pub use vram_offset::VramOffset;
 
