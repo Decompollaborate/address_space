@@ -1,6 +1,31 @@
+# SPDX-FileCopyrightText: © 2026 Decompollaborate
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "address_space"
 version = "0.1.0"
 edition = "2024"
+description = ""
+authors = [
+    "Anghelo Carvajal <angheloalf95@gmail.com>",
+]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Decompollaborate/address_space"
+# rust-version = "1.0"
+readme = "README.md"
+keywords = [
+]
+categories = [
+    "no-std",
+    "no-std::no-alloc",
+]
+
+[features]
+default = []
+
+std = []
 
 [dependencies]
+
+[profile.release]
+debug = true

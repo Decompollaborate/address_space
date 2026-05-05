@@ -1,14 +1,119 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+/* SPDX-FileCopyrightText: © 2026 Decompollaborate */
+/* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#![doc = include_str!("../README.md")]
+/*
+#![warn(clippy::pedantic)]
+#![allow(clippy::inline_always)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::semicolon_if_nothing_returned)]
+#![allow(clippy::too_many_lines)] // ?
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::uninlined_format_args)]
+#![allow(clippy::cast_lossless)] // maybe warn?
+#![allow(clippy::match_same_arms)] // maybe warn?
+#![allow(clippy::trivially_copy_pass_by_ref)] // ?
+#![allow(clippy::unused_self)]
+#![allow(clippy::missing_panics_doc)] // maybe warn?
+#![allow(clippy::doc_markdown)] // ?
+#![allow(clippy::used_underscore_binding)]
+#![allow(clippy::wildcard_imports)]
+#![allow(clippy::struct_excessive_bools)]
+#![allow(clippy::missing_errors_doc)] // maybe warn?
+#![allow(clippy::no_effect_underscore_binding)]
+#![allow(clippy::unreadable_literal)]
+*/
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+/*
+#![warn(clippy::restriction)]
+#![allow(clippy::single_call_fn)]
+#![allow(clippy::multiple_inherent_impl)]
+#![allow(clippy::same_name_method)]
+#![allow(clippy::min_ident_chars)]
+#![allow(clippy::as_conversions)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::allow_attributes_without_reason)]
+#![allow(clippy::missing_inline_in_public_items)] // !
+#![allow(clippy::default_numeric_fallback)]
+#![allow(clippy::missing_docs_in_private_items)] // warn!
+#![allow(clippy::indexing_slicing)] // TODO: consider
+#![allow(clippy::missing_trait_methods)]
+#![allow(clippy::allow_attributes)] // TODO: consider
+#![allow(clippy::todo)] // TODO: consider
+#![allow(clippy::pub_use)]
+#![allow(clippy::question_mark_used)]
+#![allow(clippy::shadow_unrelated)] // TODO: consider
+#![allow(clippy::wildcard_enum_match_arm)]
+#![allow(clippy::if_then_some_else_none)] // TODO: consider
+#![allow(clippy::unwrap_used)] // TODO: consider
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::single_char_lifetime_names)] // TODO: consider
+#![allow(clippy::field_scoped_visibility_modifiers)]
+#![allow(clippy::else_if_without_else)]
+#![allow(clippy::empty_enum_variants_with_brackets)]
+#![allow(clippy::mod_module_files)]
+#![allow(clippy::error_impl_error)]
+#![allow(clippy::self_named_module_files)]
+*/
+
+/*
+#![warn(clippy::nursery)]
+#![allow(clippy::redundant_pub_crate)]
+*/
+#![deny(unreachable_patterns)]
+#![allow(clippy::exhaustive_enums)]
+#![warn(clippy::use_self)]
+#![warn(clippy::must_use_candidate)]
+#![warn(clippy::missing_const_for_fn)]
+#![warn(clippy::missing_assert_message)]
+#![warn(clippy::pattern_type_mismatch)]
+// #![warn(clippy::missing_inline_in_public_items)] // TODO
+// #![warn(missing_docs)] // TODO: change to `deny`
+// #![warn(clippy::missing_docs_in_private_items)]
+// #![warn(clippy::doc_markdown)] // ?
+// #![warn(clippy::missing_errors_doc)]
+#![allow(clippy::pub_with_shorthand)]
+#![warn(clippy::pub_without_shorthand)]
+// #![warn(clippy::option_if_let_else)] // It can get kinda ugly. Reconsider later
+#![warn(clippy::option_map_or_none)]
+#![warn(clippy::bind_instead_of_map)]
+#![warn(clippy::cognitive_complexity)] // Maybe remove in the future (?)
+#![warn(clippy::alloc_instead_of_core)]
+#![warn(clippy::ref_option)]
+#![warn(clippy::manual_let_else)]
+#![allow(clippy::manual_non_exhaustive)]
+#![allow(clippy::pattern_type_mismatch)]
+#![allow(clippy::collapsible_match)] // Automatic fixing can break code. Also it doesn't look better either
+//
+#![cfg_attr(not(feature = "std"), no_std)]
+//
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+mod vram;
+mod vram_offset;
+
+mod rom;
+
+mod size;
+mod user_size;
+
+mod gp_value;
+
+mod address_range;
+mod rom_vram_range;
+
+pub use vram::Vram;
+pub use vram_offset::VramOffset;
+
+pub use rom::Rom;
+
+pub use size::Size;
+pub use user_size::UserSize;
+
+pub use gp_value::GpValue;
+
+pub use address_range::AddressRange;
+pub use rom_vram_range::RomVramRange;
