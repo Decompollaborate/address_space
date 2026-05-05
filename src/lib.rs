@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-#![doc = include_str!("../README.md")]
+// #![doc = include_str!("../README.md")]
 /*
 #![warn(clippy::pedantic)]
 #![allow(clippy::inline_always)]

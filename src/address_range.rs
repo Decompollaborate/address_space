@@ -42,12 +42,12 @@ where
     }
 
     #[must_use]
-    pub const fn start(&self) -> T {
+    pub fn start(&self) -> T {
         self.start
     }
 
     #[must_use]
-    pub const fn end(&self) -> T {
+    pub fn end(&self) -> T {
         self.end
     }
 }
