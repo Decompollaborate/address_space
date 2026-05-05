@@ -118,15 +118,15 @@ mod rom_vram_range;
 
 pub(crate) mod utils;
 
-pub use vram::Vram;
-pub use vram_offset::VramOffset;
+pub use self::vram::Vram;
+pub use self::vram_offset::VramOffset;
 
-pub use rom::Rom;
+pub use self::rom::Rom;
 
-pub use size::Size;
-pub use user_size::UserSize;
+pub use self::size::Size;
+pub use self::user_size::UserSize;
 
-pub use gp_value::GpValue;
+pub use self::gp_value::GpValue;
 
-pub use address_range::AddressRange;
-pub use rom_vram_range::RomVramRange;
+pub use self::address_range::AddressRange;
+pub use self::rom_vram_range::RomVramRange;
