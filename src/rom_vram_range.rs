@@ -11,25 +11,15 @@ pub struct RomVramRange {
 
 impl RomVramRange {
     #[must_use]
-    pub fn new(rom: AddressRange<Rom>, vram: AddressRange<Vram>) -> Self {
-        assert!(
-            vram.size() >= rom.size(),
-            "Can't create RomVramRange: The size of the Vram range must be equal or greater than the size of the Rom range.\nVram range is 0x{} ~ 0x{} (Size {}).\n Rom range is 0x{:08X} ~ 0x{:08X} (Size {}).",
-            vram.start(),
-            vram.end(),
-            vram.size(),
-            rom.start().inner(),
-            rom.end().inner(),
-            rom.size(),
-        );
-        assert!(
-            vram.start().inner() % 4 == rom.start().inner() % 4,
-            "vram ({:?}) and rom ({:?}) must have the same alignment",
-            vram,
-            rom,
-        );
+    pub fn new(rom: AddressRange<Rom>, vram: AddressRange<Vram>, min_alignment: u32) -> Option<Self> {
+        if vram.size() < rom.size() {
+            return None;
+        }
+        if vram.start().inner() % min_alignment != rom.start().inner() % min_alignment {
+            return None;
+        }
 
-        Self { rom, vram }
+        Some(Self { rom, vram })
     }
 
     #[must_use]
@@ -63,7 +53,7 @@ impl RomVramRange {
     #[must_use]
     pub fn rom_from_vram(&self, vram: Vram) -> Option<Rom> {
         if self.vram.in_range(vram) {
-            let diff = Size::try_from(vram - self.vram.start()).expect("This should not panic");
+            let diff = Size::try_from(vram - self.vram.start()).expect("This should not panic because `vram` is inside our range, meaning it is larger than our vram's start");
             Some(self.rom.start() + diff)
         } else {
             None
