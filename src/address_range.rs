@@ -115,6 +115,7 @@ impl ops::Index<AddressRange<Rom>> for [u8] {
     type Output = [u8];
 
     #[inline]
+    #[allow(clippy::indexing_slicing)]
     fn index(&self, index: AddressRange<Rom>) -> &Self::Output {
         &self[index.start.inner() as usize..index.end.inner() as usize]
     }

@@ -11,11 +11,11 @@ pub struct RomVramRange {
 
 impl RomVramRange {
     #[must_use]
-    pub fn new(rom: AddressRange<Rom>, vram: AddressRange<Vram>, min_alignment: u32) -> Option<Self> {
+    pub fn new(rom: AddressRange<Rom>, vram: AddressRange<Vram>, alignment: u32) -> Option<Self> {
         if vram.size() < rom.size() {
             return None;
         }
-        if vram.start().inner() % min_alignment != rom.start().inner() % min_alignment {
+        if vram.start().inner() % alignment != rom.start().inner() % alignment {
             return None;
         }
 
@@ -53,8 +53,10 @@ impl RomVramRange {
     #[must_use]
     pub fn rom_from_vram(&self, vram: Vram) -> Option<Rom> {
         if self.vram.in_range(vram) {
-            let diff = Size::try_from(vram - self.vram.start()).expect("This should not panic because `vram` is inside our range, meaning it is larger than our vram's start");
-            Some(self.rom.start() + diff)
+            let diff = Size::try_from(vram - self.vram.start());
+            #[allow(clippy::missing_panics_doc)]
+            let size = diff.expect("This should not panic because `vram` is inside our range, meaning it is larger than our vram's start");
+            Some(self.rom.start() + size)
         } else {
             None
         }

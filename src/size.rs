@@ -64,7 +64,7 @@ impl ops::Add<Self> for Size {
 }
 impl ops::AddAssign for Size {
     fn add_assign(&mut self, rhs: Self) {
-        *self = *self + rhs
+        *self = *self + rhs;
     }
 }
 
@@ -85,7 +85,7 @@ impl ops::Add<Size> for Vram {
 }
 impl ops::AddAssign<Size> for Vram {
     fn add_assign(&mut self, rhs: Size) {
-        *self = *self + rhs
+        *self = *self + rhs;
     }
 }
 
@@ -106,7 +106,7 @@ impl ops::Add<Size> for Rom {
 }
 impl ops::AddAssign<Size> for Rom {
     fn add_assign(&mut self, rhs: Size) {
-        *self = *self + rhs
+        *self = *self + rhs;
     }
 }
 

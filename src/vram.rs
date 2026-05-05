@@ -119,13 +119,13 @@ impl ops::Add<&VramOffset> for Vram {
 
 impl ops::AddAssign<VramOffset> for Vram {
     fn add_assign(&mut self, rhs: VramOffset) {
-        *self = self.add_offset(&rhs)
+        *self = self.add_offset(&rhs);
     }
 }
 
 impl ops::AddAssign<&VramOffset> for Vram {
     fn add_assign(&mut self, rhs: &VramOffset) {
-        *self = self.add_offset(rhs)
+        *self = self.add_offset(rhs);
     }
 }
 

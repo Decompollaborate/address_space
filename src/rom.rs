@@ -30,11 +30,7 @@ impl Rom {
 
     #[must_use]
     pub fn sub_rom(&self, rhs: &Self) -> Option<Size> {
-        if let Some(val) = self.inner.checked_sub(rhs.inner) {
-            Some(Size::new(val))
-        } else {
-            None
-        }
+        self.inner.checked_sub(rhs.inner).map(Size::new)
     }
 }
 
@@ -48,6 +44,7 @@ impl ops::Index<Rom> for [u8] {
     type Output = u8;
 
     #[inline]
+    #[allow(clippy::indexing_slicing)]
     fn index(&self, idx: Rom) -> &Self::Output {
         &self[idx.inner as usize]
     }

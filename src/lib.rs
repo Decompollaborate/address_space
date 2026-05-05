@@ -1,14 +1,12 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-// #![doc = include_str!("../README.md")]
 /*
 #![warn(clippy::pedantic)]
 #![allow(clippy::inline_always)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::cast_sign_loss)]
-#![allow(clippy::semicolon_if_nothing_returned)]
 #![allow(clippy::too_many_lines)] // ?
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::uninlined_format_args)]
@@ -16,7 +14,6 @@
 #![allow(clippy::match_same_arms)] // maybe warn?
 #![allow(clippy::trivially_copy_pass_by_ref)] // ?
 #![allow(clippy::unused_self)]
-#![allow(clippy::missing_panics_doc)] // maybe warn?
 #![allow(clippy::doc_markdown)] // ?
 #![allow(clippy::used_underscore_binding)]
 #![allow(clippy::wildcard_imports)]
@@ -87,17 +84,18 @@
 #![allow(clippy::manual_non_exhaustive)]
 #![allow(clippy::pattern_type_mismatch)]
 #![allow(clippy::collapsible_match)] // Automatic fixing can break code. Also it doesn't look better either
+#![warn(clippy::fallible_impl_from)]
+#![warn(clippy::indexing_slicing)]
+#![warn(clippy::manual_is_variant_and)]
+#![warn(clippy::map_unwrap_or)]
+#![warn(clippy::missing_panics_doc)]
+#![warn(clippy::or_fun_call)]
+#![warn(clippy::unused_result_ok)]
+#![warn(clippy::unwrap_in_result)]
+#![warn(clippy::unwrap_used)]
+#![warn(clippy::panic)]
 // #![warn(clippy::expect_used)]
-// #![warn(clippy::fallible_impl_from)]
-// #![warn(clippy::indexing_slicing)]
-// #![warn(clippy::manual_is_variant_and)]
-// #![warn(clippy::map_unwrap_or)]
-// #![warn(clippy::missing_panics_doc)]
-// #![warn(clippy::or_fun_call)]
-// #![warn(clippy::unused_result_ok)]
-// #![warn(clippy::unwrap_in_result)]
-// #![warn(clippy::unwrap_used)]
-// #![warn(clippy::panic)]
+#![warn(clippy::semicolon_if_nothing_returned)]
 //
 #![cfg_attr(not(feature = "std"), no_std)]
 //
