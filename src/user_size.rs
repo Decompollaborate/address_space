@@ -23,10 +23,7 @@ impl UserSize {
 
     #[must_use]
     pub fn new_option(value: Option<NonZeroU32>) -> Option<Self> {
-        match value {
-            Some(x) => Some(Self::new(x)),
-            None => None,
-        }
+        value.map(Self::new)
     }
 
     #[must_use]

@@ -25,7 +25,8 @@ impl RomVramRange {
         assert!(
             vram.start().inner() % 4 == rom.start().inner() % 4,
             "vram ({:?}) and rom ({:?}) must have the same alignment",
-            vram, rom,
+            vram,
+            rom,
         );
 
         Self { rom, vram }
@@ -62,8 +63,7 @@ impl RomVramRange {
     #[must_use]
     pub fn rom_from_vram(&self, vram: Vram) -> Option<Rom> {
         if self.vram.in_range(vram) {
-            let diff = Size::try_from(vram - self.vram.start())
-                .expect("This should not panic");
+            let diff = Size::try_from(vram - self.vram.start()).expect("This should not panic");
             Some(self.rom.start() + diff)
         } else {
             None

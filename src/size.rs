@@ -4,7 +4,7 @@
 use core::{fmt, ops};
 
 #[cfg(feature = "try_from")]
-use core::{fmt, ops, convert::TryFrom};
+use core::convert::TryFrom;
 
 use super::{Rom, Vram, VramOffset};
 
@@ -19,7 +19,6 @@ impl Size {
         Self { inner: value }
     }
 
-    #[must_use]
     pub fn try_from(value: VramOffset) -> Result<Self, ConvertToSizeError> {
         if value.inner() < 0 {
             Err(ConvertToSizeError {

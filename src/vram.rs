@@ -3,7 +3,7 @@
 
 use core::{fmt, ops};
 
-use super::{VramOffset, utils};
+use super::{utils, VramOffset};
 
 /// A VRAM (Virtual RAM) address.
 ///
