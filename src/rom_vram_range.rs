@@ -1,6 +1,8 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
+use core::convert::TryInto;
+
 use super::{AddressRange, Rom, Size, Vram};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -24,7 +26,8 @@ impl RomVramRange {
         );
         assert!(
             vram.start().inner() % 4 == rom.start().inner() % 4,
-            "vram ({vram:?}) and rom ({rom:?}) must have the same alignment"
+            "vram ({:?}) and rom ({:?}) must have the same alignment",
+            vram, rom,
         );
 
         Self { rom, vram }

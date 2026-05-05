@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use core::{error, fmt, ops};
+use core::{error, fmt, ops, convert::TryFrom};
 
 use super::{Rom, Vram, VramOffset};
 

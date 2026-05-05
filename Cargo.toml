@@ -4,14 +4,13 @@
 [package]
 name = "address_space"
 version = "0.1.0"
-edition = "2024"
+edition = "2018"
 description = ""
 authors = [
     "Anghelo Carvajal <angheloalf95@gmail.com>",
 ]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/Decompollaborate/address_space"
-# rust-version = "1.0"
 readme = "README.md"
 keywords = [
 ]
@@ -19,6 +18,13 @@ categories = [
     "no-std",
     "no-std::no-alloc",
 ]
+
+# Use https://github.com/foresterre/cargo-msrv to check the MSRV
+# ```
+# cargo install cargo-msrv --locked --force
+# cargo msrv find
+# ```
+# rust-version = "1.83"
 
 [features]
 default = []
