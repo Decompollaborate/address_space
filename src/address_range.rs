@@ -1,7 +1,10 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use core::{fmt, ops};
+use core::{
+    fmt,
+    ops::{self, Add},
+};
 
 use super::{Rom, Size, Vram};
 
@@ -20,10 +23,21 @@ where
         if start > end {
             None
         } else {
-            Some(Self {
-                start,
-                end,
-            })
+            Some(Self { start, end })
+        }
+    }
+
+    #[must_use]
+    pub fn new_by_size(start: T, size: Size) -> Option<Self>
+    where
+        T: Add<Size, Output = T>,
+    {
+        let end = start.add(size);
+
+        if start > end {
+            None
+        } else {
+            Some(Self { start, end })
         }
     }
 
@@ -39,6 +53,7 @@ where
 }
 
 impl AddressRange<Vram> {
+    #[must_use]
     pub const fn size(&self) -> Size {
         // Casting to unsigned should be fine because we now `self.end` is always greater or equal than `self.start`.
         Size::new(self.end.sub_vram(&self.start).inner() as u32)
@@ -46,6 +61,7 @@ impl AddressRange<Vram> {
 }
 
 impl AddressRange<Rom> {
+    #[must_use]
     pub const fn size(&self) -> Size {
         // TODO: Add a substraction method on Rom
         Size::new(self.end.inner() - self.start.inner())
@@ -75,13 +91,13 @@ where
             self.end = value;
         }
     }
-    pub fn expand_range(&mut self, other: &AddressRange<T>) {
+    pub fn expand_range(&mut self, other: &Self) {
         self.decrease_start(other.start);
         self.increase_end(other.end);
     }
 
     #[must_use]
-    pub fn overlaps(&self, other: &AddressRange<T>) -> bool {
+    pub fn overlaps(&self, other: &Self) -> bool {
         self.start < other.end && other.start < self.end
     }
 }

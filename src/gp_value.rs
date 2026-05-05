@@ -14,6 +14,7 @@ impl GpValue {
         Self { inner: value }
     }
 
+    #[must_use]
     pub const fn inner(&self) -> u32 {
         self.inner
     }

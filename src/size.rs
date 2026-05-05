@@ -42,10 +42,10 @@ impl Size {
     }
 }
 
-impl ops::Add<Size> for Size {
-    type Output = Size;
+impl ops::Add<Self> for Size {
+    type Output = Self;
 
-    fn add(self, rhs: Size) -> Self::Output {
+    fn add(self, rhs: Self) -> Self::Output {
         self.add_size(&rhs)
     }
 }
@@ -64,7 +64,7 @@ impl ops::Add<Vram> for Size {
 }
 
 impl ops::Add<Size> for Vram {
-    type Output = Vram;
+    type Output = Self;
 
     fn add(self, rhs: Size) -> Self::Output {
         rhs.add_vram(&self)
@@ -85,7 +85,7 @@ impl ops::Add<Rom> for Size {
 }
 
 impl ops::Add<Size> for Rom {
-    type Output = Rom;
+    type Output = Self;
 
     fn add(self, rhs: Size) -> Self::Output {
         rhs.add_rom(&self)

@@ -16,25 +16,28 @@ impl Rom {
         Self { inner: value }
     }
 
+    #[must_use]
     pub const fn inner(&self) -> u32 {
         self.inner
     }
 }
 
 impl Rom {
+    #[must_use]
     pub const fn add_size(&self, size: &Size) -> Self {
         size.add_rom(self)
     }
 
-    pub const fn sub_rom(&self, rhs: &Rom) -> Size {
+    #[must_use]
+    pub const fn sub_rom(&self, rhs: &Self) -> Size {
         Size::new(self.inner - rhs.inner)
     }
 }
 
-impl ops::Sub<Rom> for Rom {
+impl ops::Sub<Self> for Rom {
     type Output = Size;
 
-    fn sub(self, rhs: Rom) -> Self::Output {
+    fn sub(self, rhs: Self) -> Self::Output {
         self.sub_rom(&rhs)
     }
 }

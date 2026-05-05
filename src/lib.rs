@@ -87,6 +87,17 @@
 #![allow(clippy::manual_non_exhaustive)]
 #![allow(clippy::pattern_type_mismatch)]
 #![allow(clippy::collapsible_match)] // Automatic fixing can break code. Also it doesn't look better either
+// #![warn(clippy::expect_used)]
+// #![warn(clippy::fallible_impl_from)]
+// #![warn(clippy::indexing_slicing)]
+// #![warn(clippy::manual_is_variant_and)]
+// #![warn(clippy::map_unwrap_or)]
+// #![warn(clippy::missing_panics_doc)]
+// #![warn(clippy::or_fun_call)]
+// #![warn(clippy::unused_result_ok)]
+// #![warn(clippy::unwrap_in_result)]
+// #![warn(clippy::unwrap_used)]
+// #![warn(clippy::panic)]
 //
 #![cfg_attr(not(feature = "std"), no_std)]
 //
