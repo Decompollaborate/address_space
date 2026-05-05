@@ -24,21 +24,17 @@ impl Rom {
 
 impl Rom {
     #[must_use]
-    pub const fn add_size(&self, size: &Size) -> Self {
+    pub fn add_size(&self, size: &Size) -> Self {
         size.add_rom(self)
     }
 
     #[must_use]
-    pub const fn sub_rom(&self, rhs: &Self) -> Size {
-        Size::new(self.inner - rhs.inner)
-    }
-}
-
-impl ops::Sub<Self> for Rom {
-    type Output = Size;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        self.sub_rom(&rhs)
+    pub fn sub_rom(&self, rhs: &Self) -> Option<Size> {
+        if let Some(val) = self.inner.checked_sub(rhs.inner) {
+            Some(Size::new(val))
+        } else {
+            None
+        }
     }
 }
 

@@ -40,18 +40,18 @@ impl Size {
     }
 
     #[must_use]
-    pub const fn add_size(&self, rhs: &Self) -> Self {
-        Self::new(self.inner() + rhs.inner())
+    pub fn add_size(&self, rhs: &Self) -> Self {
+        Self::new(self.inner().wrapping_add(rhs.inner()))
     }
 
     #[must_use]
-    pub const fn add_vram(&self, rhs: &Vram) -> Vram {
-        Vram::new(self.inner() + rhs.inner())
+    pub fn add_vram(&self, rhs: &Vram) -> Vram {
+        Vram::new(self.inner().wrapping_add(rhs.inner()))
     }
 
     #[must_use]
-    pub const fn add_rom(&self, rhs: &Rom) -> Rom {
-        Rom::new(self.inner() + rhs.inner())
+    pub fn add_rom(&self, rhs: &Rom) -> Rom {
+        Rom::new(self.inner().wrapping_add(rhs.inner()))
     }
 }
 

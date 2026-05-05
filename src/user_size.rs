@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use core::{fmt, num::NonZeroU32, ops};
+use core::{fmt, num::NonZeroU32};
 
 use super::{Rom, Size, Vram};
 
@@ -32,109 +32,35 @@ impl UserSize {
     }
 
     #[must_use]
-    pub fn add_user_size(&self, rhs: &Self) -> Self {
+    pub fn add_user_size(&self, rhs: &Self) -> Option<Self> {
         let slf = self.inner().get();
-        let temp = slf.checked_add(rhs.inner().get()).unwrap();
+        let temp = slf.checked_add(rhs.inner().get())?;
 
-        Self::new(NonZeroU32::new(temp).unwrap())
+        Self::new_option(NonZeroU32::new(temp))
     }
 
     #[must_use]
-    pub fn add_size(&self, rhs: &Size) -> Self {
+    pub fn add_size(&self, rhs: &Size) -> Option<Self> {
         let slf = self.inner().get();
-        let temp = slf.checked_add(rhs.inner()).unwrap();
+        let temp = slf.checked_add(rhs.inner())?;
 
-        Self::new(NonZeroU32::new(temp).unwrap())
+        Self::new_option(NonZeroU32::new(temp))
     }
 
     #[must_use]
-    pub fn add_vram(&self, rhs: &Vram) -> Vram {
+    pub fn add_vram(&self, rhs: &Vram) -> Option<Vram> {
         let slf = self.inner().get();
-        let temp = slf.checked_add(rhs.inner()).unwrap();
+        let temp = slf.checked_add(rhs.inner())?;
 
-        Vram::new(temp)
+        Some(Vram::new(temp))
     }
 
     #[must_use]
-    pub fn add_rom(&self, rhs: &Rom) -> Rom {
+    pub fn add_rom(&self, rhs: &Rom) -> Option<Rom> {
         let slf = self.inner().get();
-        let temp = slf.checked_add(rhs.inner()).unwrap();
+        let temp = slf.checked_add(rhs.inner())?;
 
-        Rom::new(temp)
-    }
-}
-
-impl ops::Add<Self> for UserSize {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        self.add_user_size(&rhs)
-    }
-}
-impl ops::AddAssign for UserSize {
-    fn add_assign(&mut self, rhs: Self) {
-        *self = *self + rhs
-    }
-}
-
-impl ops::Add<Size> for UserSize {
-    type Output = Self;
-
-    fn add(self, rhs: Size) -> Self::Output {
-        self.add_size(&rhs)
-    }
-}
-impl ops::Add<UserSize> for Size {
-    type Output = UserSize;
-
-    fn add(self, rhs: UserSize) -> Self::Output {
-        rhs.add_size(&self)
-    }
-}
-impl ops::AddAssign<Size> for UserSize {
-    fn add_assign(&mut self, rhs: Size) {
-        *self = *self + rhs
-    }
-}
-
-impl ops::Add<Vram> for UserSize {
-    type Output = Vram;
-
-    fn add(self, rhs: Vram) -> Self::Output {
-        self.add_vram(&rhs)
-    }
-}
-impl ops::Add<UserSize> for Vram {
-    type Output = Self;
-
-    fn add(self, rhs: UserSize) -> Self::Output {
-        rhs.add_vram(&self)
-    }
-}
-impl ops::AddAssign<UserSize> for Vram {
-    fn add_assign(&mut self, rhs: UserSize) {
-        *self = *self + rhs
-    }
-}
-
-impl ops::Add<Rom> for UserSize {
-    type Output = Rom;
-
-    fn add(self, rhs: Rom) -> Self::Output {
-        self.add_rom(&rhs)
-    }
-}
-
-impl ops::Add<UserSize> for Rom {
-    type Output = Self;
-
-    fn add(self, rhs: UserSize) -> Self::Output {
-        rhs.add_rom(&self)
-    }
-}
-impl ops::AddAssign<UserSize> for Rom {
-    fn add_assign(&mut self, rhs: UserSize) {
-        *self = *self + rhs
+        Some(Rom::new(temp))
     }
 }
 

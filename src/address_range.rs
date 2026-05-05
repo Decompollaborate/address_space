@@ -28,9 +28,9 @@ where
     }
 
     #[must_use]
-    pub fn new_by_size(start: T, size: Size) -> Option<Self>
+    pub fn new_by_size<S>(start: T, size: S) -> Option<Self>
     where
-        T: Add<Size, Output = T>,
+        T: Add<S, Output = T>,
     {
         let end = start.add(size);
 
@@ -55,7 +55,7 @@ where
 impl AddressRange<Vram> {
     #[must_use]
     pub fn size(&self) -> Size {
-        // Casting to unsigned should be fine because we now `self.end` is always greater or equal than `self.start`.
+        // Casting to unsigned should be fine because we know `self.end` is always greater or equal than `self.start`.
         Size::new(self.end.sub_vram(&self.start).inner() as u32)
     }
 }

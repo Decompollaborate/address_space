@@ -33,7 +33,7 @@ impl Vram {
         Self { inner: value }
     }
 
-    /// Returns the internal vram value.
+    /// Returns the internal Vram value.
     #[must_use]
     pub const fn inner(&self) -> u32 {
         self.inner

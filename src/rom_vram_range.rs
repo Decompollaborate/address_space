@@ -53,7 +53,7 @@ impl RomVramRange {
     #[must_use]
     pub fn vram_fom_rom(&self, rom: Rom) -> Option<Vram> {
         if self.rom.in_range(rom) {
-            let diff = rom - self.rom.start();
+            let diff = rom.sub_rom(&self.rom.start())?;
             Some(self.vram.start() + diff)
         } else {
             None
