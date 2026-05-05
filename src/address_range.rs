@@ -9,6 +9,7 @@ use core::{
 use super::{Rom, Size, Vram};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AddressRange<T> {
     start: T,
     end: T,

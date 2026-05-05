@@ -42,6 +42,7 @@ error = [
 ]
 
 [dependencies]
+serde = { version = "1", optional = true, features = ["derive"]}
 
 [profile.release]
 debug = true

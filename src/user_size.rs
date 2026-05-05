@@ -7,6 +7,7 @@ use super::{Rom, Size, Vram};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UserSize {
     inner: NonZeroU32,
 }

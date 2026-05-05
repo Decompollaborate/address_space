@@ -30,6 +30,7 @@ use super::Vram;
 /// [`inner`]: VramOffset::inner
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct VramOffset {
     inner: i32,
 }
