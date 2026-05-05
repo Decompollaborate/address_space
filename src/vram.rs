@@ -3,7 +3,7 @@
 
 use core::{fmt, ops};
 
-use super::{utils, VramOffset};
+use super::{utils, Size, VramOffset};
 
 /// A VRAM (Virtual RAM) address.
 ///
@@ -40,6 +40,11 @@ impl Vram {
         self.inner
     }
 
+    #[must_use]
+    pub fn sub_vram(&self, rhs: &Self) -> Option<Size> {
+        self.inner.checked_sub(rhs.inner).map(Size::new)
+    }
+
     /// Adds an offset to this Vram, generating a new Vram value.
     ///
     /// # Examples
@@ -68,10 +73,10 @@ impl Vram {
     /// let vram_a = Vram::new(0x80000100);
     /// let vram_b = Vram::new(0x80000140);
     ///
-    /// assert_eq!(vram_a.sub_vram(&vram_b), VramOffset::new(-0x40));
+    /// assert_eq!(vram_a.sub_vram_signed(&vram_b), VramOffset::new(-0x40));
     /// ```
     #[must_use]
-    pub fn sub_vram(&self, rhs: &Self) -> VramOffset {
+    pub fn sub_vram_signed(&self, rhs: &Self) -> VramOffset {
         let value = utils::i32_wrapping_sub_unsigned(self.inner as i32, rhs.inner());
         VramOffset::new(value)
     }
@@ -134,7 +139,7 @@ impl ops::Sub<Self> for Vram {
     type Output = VramOffset;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        self.sub_vram(&rhs)
+        self.sub_vram_signed(&rhs)
     }
 }
 
@@ -142,7 +147,7 @@ impl ops::Sub<&Self> for Vram {
     type Output = VramOffset;
 
     fn sub(self, rhs: &Self) -> Self::Output {
-        self.sub_vram(rhs)
+        self.sub_vram_signed(rhs)
     }
 }
 

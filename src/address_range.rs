@@ -55,16 +55,20 @@ where
 impl AddressRange<Vram> {
     #[must_use]
     pub fn size(&self) -> Size {
-        // Casting to unsigned should be fine because we know `self.end` is always greater or equal than `self.start`.
-        Size::new(self.end.sub_vram(&self.start).inner() as u32)
+        #[allow(clippy::missing_panics_doc)]
+        self.end
+            .sub_vram(&self.start)
+            .expect("This can't panic because we know `end` is larger than `start`")
     }
 }
 
 impl AddressRange<Rom> {
     #[must_use]
-    pub const fn size(&self) -> Size {
-        // TODO: Add a substraction method on Rom
-        Size::new(self.end.inner() - self.start.inner())
+    pub fn size(&self) -> Size {
+        #[allow(clippy::missing_panics_doc)]
+        self.end
+            .sub_rom(&self.start)
+            .expect("This can't panic because we know `end` is larger than `start`")
     }
 }
 
