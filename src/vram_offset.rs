@@ -62,7 +62,7 @@ impl VramOffset {
     ///
     /// [`Vram`]: crate::vram::Vram
     #[must_use]
-    pub const fn add_vram(&self, rhs: &Vram) -> Vram {
+    pub fn add_vram(&self, rhs: &Vram) -> Vram {
         rhs.add_offset(self)
     }
 

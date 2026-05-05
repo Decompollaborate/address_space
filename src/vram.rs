@@ -52,7 +52,7 @@ impl Vram {
     /// assert_eq!(vram.add_offset(&offset), Vram::new(0x80000108));
     /// ```
     #[must_use]
-    pub const fn add_offset(&self, rhs: &VramOffset) -> Self {
+    pub fn add_offset(&self, rhs: &VramOffset) -> Self {
         let value = utils::u32_wrapping_add_signed(self.inner, rhs.inner());
         Self::new(value)
     }
@@ -70,7 +70,7 @@ impl Vram {
     /// assert_eq!(vram_a.sub_vram(&vram_b), VramOffset::new(-0x40));
     /// ```
     #[must_use]
-    pub const fn sub_vram(&self, rhs: &Self) -> VramOffset {
+    pub fn sub_vram(&self, rhs: &Self) -> VramOffset {
         let value = utils::i32_wrapping_sub_unsigned(self.inner as i32, rhs.inner());
         VramOffset::new(value)
     }

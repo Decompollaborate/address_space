@@ -24,16 +24,22 @@ categories = [
 # cargo install cargo-msrv --locked --force
 # cargo msrv find
 # ```
-# rust-version = "1.34"
+# rust-version = "1.32"
 
 [features]
 default = []
 
 std = []
 
+# Implement TryFrom conversion for some types.
+# Bumps the MSRV to 1.34
+try_from = []
+
 # Implement the Error trait on error types.
 # Bumps the MSRV to 1.81
-error = []
+error = [
+    "try_from",
+]
 
 [dependencies]
 

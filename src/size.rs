@@ -1,6 +1,9 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
+use core::{fmt, ops};
+
+#[cfg(feature = "try_from")]
 use core::{fmt, ops, convert::TryFrom};
 
 use super::{Rom, Vram, VramOffset};
@@ -14,6 +17,17 @@ impl Size {
     #[must_use]
     pub const fn new(value: u32) -> Self {
         Self { inner: value }
+    }
+
+    #[must_use]
+    pub fn try_from(value: VramOffset) -> Result<Self, ConvertToSizeError> {
+        if value.inner() < 0 {
+            Err(ConvertToSizeError {
+                inner: value.inner(),
+            })
+        } else {
+            Ok(Self::new(value.inner() as u32))
+        }
     }
 
     #[must_use]
@@ -124,17 +138,12 @@ impl fmt::Display for ConvertToSizeError {
 #[cfg(feature = "error")]
 impl core::error::Error for ConvertToSizeError {}
 
+#[cfg(feature = "try_from")]
 impl TryFrom<VramOffset> for Size {
     type Error = ConvertToSizeError;
 
     fn try_from(value: VramOffset) -> Result<Self, Self::Error> {
-        if value.inner() < 0 {
-            Err(ConvertToSizeError {
-                inner: value.inner(),
-            })
-        } else {
-            Ok(Self::new(value.inner() as u32))
-        }
+        Self::try_from(value)
     }
 }
 

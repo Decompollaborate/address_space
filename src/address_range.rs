@@ -54,7 +54,7 @@ where
 
 impl AddressRange<Vram> {
     #[must_use]
-    pub const fn size(&self) -> Size {
+    pub fn size(&self) -> Size {
         // Casting to unsigned should be fine because we now `self.end` is always greater or equal than `self.start`.
         Size::new(self.end.sub_vram(&self.start).inner() as u32)
     }

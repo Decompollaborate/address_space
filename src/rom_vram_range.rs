@@ -1,8 +1,6 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use core::convert::TryInto;
-
 use super::{AddressRange, Rom, Size, Vram};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -64,8 +62,7 @@ impl RomVramRange {
     #[must_use]
     pub fn rom_from_vram(&self, vram: Vram) -> Option<Rom> {
         if self.vram.in_range(vram) {
-            let diff: Size = (vram - self.vram.start())
-                .try_into()
+            let diff = Size::try_from(vram - self.vram.start())
                 .expect("This should not panic");
             Some(self.rom.start() + diff)
         } else {
