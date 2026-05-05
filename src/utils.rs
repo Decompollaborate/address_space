@@ -2,7 +2,9 @@
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
 pub const fn u8_ilog2(value: u8) -> u32 {
-    u8::BITS - 1 - value.leading_zeros()
+    const BITS: u32 = 8;
+
+    BITS - 1 - value.leading_zeros()
 }
 
 pub const fn u32_wrapping_add_signed(value: u32, other: i32) -> u32 {

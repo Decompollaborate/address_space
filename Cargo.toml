@@ -24,7 +24,7 @@ categories = [
 # cargo install cargo-msrv --locked --force
 # cargo msrv find
 # ```
-# rust-version = "1.53"
+# rust-version = "1.34"
 
 [features]
 default = []

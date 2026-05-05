@@ -53,20 +53,24 @@ impl RomVramRange {
 
     #[must_use]
     pub fn vram_fom_rom(&self, rom: Rom) -> Option<Vram> {
-        self.rom.in_range(rom).then(|| {
+        if self.rom.in_range(rom) {
             let diff = rom - self.rom.start();
-            self.vram.start() + diff
-        })
+            Some(self.vram.start() + diff)
+        } else {
+            None
+        }
     }
 
     #[must_use]
     pub fn rom_from_vram(&self, vram: Vram) -> Option<Rom> {
-        self.vram.in_range(vram).then(|| {
+        if self.vram.in_range(vram) {
             let diff: Size = (vram - self.vram.start())
                 .try_into()
                 .expect("This should not panic");
-            self.rom.start() + diff
-        })
+            Some(self.rom.start() + diff)
+        } else {
+            None
+        }
     }
 }
 

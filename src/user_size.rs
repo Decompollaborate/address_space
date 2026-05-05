@@ -17,12 +17,12 @@ impl UserSize {
     }
 
     #[must_use]
-    pub const fn new_checked(value: u32) -> Option<Self> {
+    pub fn new_checked(value: u32) -> Option<Self> {
         Self::new_option(NonZeroU32::new(value))
     }
 
     #[must_use]
-    pub const fn new_option(value: Option<NonZeroU32>) -> Option<Self> {
+    pub fn new_option(value: Option<NonZeroU32>) -> Option<Self> {
         match value {
             Some(x) => Some(Self::new(x)),
             None => None,

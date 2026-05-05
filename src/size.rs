@@ -109,7 +109,6 @@ impl fmt::Display for Size {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[non_exhaustive]
 pub struct ConvertToSizeError {
     inner: i32,
 }
