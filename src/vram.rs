@@ -21,6 +21,7 @@ use super::{utils, VramOffset};
 /// [`sub_vram`]: Vram::sub_vram
 /// [`inner`]: Vram::inner
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 // #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vram {
     inner: u32,

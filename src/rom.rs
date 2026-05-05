@@ -6,6 +6,7 @@ use core::{fmt, ops};
 use super::Size;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct Rom {
     inner: u32,
 }

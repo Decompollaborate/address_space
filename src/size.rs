@@ -9,6 +9,7 @@ use core::convert::TryFrom;
 use super::{Rom, Vram, VramOffset};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct Size {
     inner: u32,
 }

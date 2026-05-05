@@ -4,6 +4,7 @@
 use core::fmt;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct GpValue {
     inner: u32,
 }

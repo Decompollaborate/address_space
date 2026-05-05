@@ -6,6 +6,7 @@ use core::{fmt, num::NonZeroU32};
 use super::{Rom, Size, Vram};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct UserSize {
     inner: NonZeroU32,
 }

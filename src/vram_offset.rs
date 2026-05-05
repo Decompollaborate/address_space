@@ -29,6 +29,7 @@ use super::Vram;
 /// [`add_vram`]: VramOffset::add_vram
 /// [`inner`]: VramOffset::inner
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct VramOffset {
     inner: i32,
 }
