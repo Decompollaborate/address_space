@@ -53,7 +53,8 @@ impl Vram {
     /// ```
     #[must_use]
     pub const fn add_offset(&self, rhs: &VramOffset) -> Self {
-        Self::new(self.inner.wrapping_add_signed(rhs.inner()))
+        let value = utils::u32_wrapping_add_signed(self.inner, rhs.inner());
+        Self::new(value)
     }
 
     /// Subtracts a Vram to this Vram.
@@ -70,7 +71,8 @@ impl Vram {
     /// ```
     #[must_use]
     pub const fn sub_vram(&self, rhs: &Self) -> VramOffset {
-        VramOffset::new((self.inner as i32).wrapping_sub_unsigned(rhs.inner()))
+        let value = utils::i32_wrapping_sub_unsigned(self.inner as i32, rhs.inner());
+        VramOffset::new(value)
     }
 
     /// Aligns down the Vram to the given power-of-two `alignment`.
