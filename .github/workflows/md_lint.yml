@@ -1,0 +1,19 @@
+name: Lint markdown files
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    name: Lint md files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Lint markdown files
+        uses: articulate/actions-markdownlint@v1.1.0
+        with:
+          config: .markdownlint.jsonc
