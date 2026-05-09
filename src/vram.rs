@@ -7,18 +7,32 @@ use super::{utils, Size, VramOffset};
 
 /// A VRAM (Virtual RAM) address.
 ///
-/// A Vram address could be modified by a [`VramOffset`] instance. This can
-/// be done by either the [`add_offset`] function or by using the `+` operator.
+/// This type represents an address within the Virtual RAM address space.
 ///
-/// It is also possible to calculate the difference between two Vram addresses,
-/// which will return a [`VramOffset`] instance. This can be done with the
-/// [`sub_vram`] function or by using the `-` operator.
+/// A `Vram` address can be modified by a [`VramOffset`] instance through
+/// addition, generating a new `Vram` value. It is also possible to calculate
+/// the difference between two `Vram` addresses, which will return a
+/// [`VramOffset`] instance (which may be negative).
 ///
-/// To get the raw inner value use the [`inner`] function.
+/// To get the raw inner value use the [`inner`] method.
 ///
-/// [`VramOffset`]: crate::vram::VramOffset
-/// [`add_offset`]: Vram::add_offset
-/// [`sub_vram`]: Vram::sub_vram
+/// # Examples
+///
+/// ```
+/// use address_space::{Vram, VramOffset, Size};
+///
+/// let vram1 = Vram::new(0x80000000);
+/// let vram2 = Vram::new(0x80000100);
+/// let offset = VramOffset::new(0x10);
+///
+/// // Adding an offset to a VRAM address
+/// assert_eq!(vram1 + offset, Vram::new(0x80000010));
+///
+/// // Subtracting two VRAM addresses
+/// assert_eq!(vram2 - vram1, VramOffset::new(0x100));
+/// ```
+///
+/// [`VramOffset`]: crate::VramOffset
 /// [`inner`]: Vram::inner
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
@@ -29,23 +43,68 @@ pub struct Vram {
 
 impl Vram {
     /// Constructs a `Vram` from a given value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Vram;
+    ///
+    /// let vram = Vram::new(0x80000000);
+    /// assert_eq!(vram.inner(), 0x80000000);
+    /// ```
     #[must_use]
     pub const fn new(value: u32) -> Self {
         Self { inner: value }
     }
 
-    /// Returns the internal Vram value.
+    /// Returns the internal VRAM address value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Vram;
+    ///
+    /// let vram = Vram::new(0x80000ABC);
+    /// assert_eq!(vram.inner(), 0x80000ABC);
+    /// ```
     #[must_use]
     pub const fn inner(&self) -> u32 {
         self.inner
     }
 
+    /// Subtracts another VRAM address from this one, returning a [`Size`] if successful.
+    ///
+    /// In other words, performs `self - rhs`.
+    ///
+    /// Returns `None` if the subtraction would underflow (i.e., if `rhs` > `self`).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram1 = Vram::new(0x80000100);
+    /// let vram2 = Vram::new(0x80000000);
+    ///
+    /// assert_eq!(vram1.sub_vram(&vram2), Some(Size::new(0x100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram1 = Vram::new(0x80000400);
+    /// let vram2 = Vram::new(0x80000600);
+    ///
+    /// assert_eq!(vram1.sub_vram(&vram2), None);
+    /// ```
     #[must_use]
     pub fn sub_vram(&self, rhs: &Self) -> Option<Size> {
         self.inner.checked_sub(rhs.inner).map(Size::new)
     }
 
-    /// Adds an offset to this Vram, generating a new Vram value.
+    /// Adds a [`VramOffset`] to this VRAM address, generating a new VRAM value.
+    ///
+    /// The offset may be negative, effectively subtracting from the address.
     ///
     /// # Examples
     ///
@@ -57,13 +116,27 @@ impl Vram {
     ///
     /// assert_eq!(vram.add_offset(&offset), Vram::new(0x80000108));
     /// ```
+    ///
+    /// ```
+    /// use address_space::{VramOffset, Vram};
+    ///
+    /// let offset = VramOffset::new(-0x8);
+    /// let vram = Vram::new(0x80000110);
+    ///
+    /// assert_eq!(vram.add_offset(&offset), Vram::new(0x80000108));
+    /// ```
+    ///
+    /// [`VramOffset`]: crate::vram_offset::VramOffset
     #[must_use]
     pub fn add_offset(&self, rhs: &VramOffset) -> Self {
         let value = utils::u32_wrapping_add_signed(self.inner, rhs.inner());
         Self::new(value)
     }
 
-    /// Subtracts a Vram to this Vram.
+    /// Subtracts another VRAM address from this one, returning a signed
+    /// [`VramOffset`].
+    ///
+    /// The returned offset can be positive or negative.
     ///
     /// # Examples
     ///
@@ -75,15 +148,18 @@ impl Vram {
     ///
     /// assert_eq!(vram_a.sub_vram_signed(&vram_b), VramOffset::new(-0x40));
     /// ```
+    ///
+    /// [`VramOffset`]: crate::vram_offset::VramOffset
     #[must_use]
     pub fn sub_vram_signed(&self, rhs: &Self) -> VramOffset {
         let value = utils::i32_wrapping_sub_unsigned(self.inner as i32, rhs.inner());
         VramOffset::new(value)
     }
 
-    /// Aligns down the Vram to the given power-of-two `alignment`.
+    /// Aligns down the VRAM address to the given power-of-two `alignment`.
     ///
-    /// If the `alignment` parameter is not a power-of-two then it will be rounded down.
+    /// If the `alignment` parameter is not a power-of-two then it will be
+    /// rounded down to the nearest power-of-two.
     ///
     /// # Panics
     ///
@@ -97,10 +173,13 @@ impl Vram {
     /// let vram = Vram::new(0x800000A4);
     ///
     /// assert_eq!(vram.align_down(8), Vram::new(0x800000A0));
+    /// assert_eq!(vram.align_down(0x80), Vram::new(0x80000080));
+    /// assert_eq!(vram.align_down(0x100), Vram::new(0x80000000));
+    /// assert_eq!(vram.align_down(0xA), Vram::new(0x800000A0));
     /// ```
     #[must_use = "this returns the result of the operation, without modifying the original"]
-    pub fn align_down(&self, alignment: u8) -> Self {
-        let shift = utils::u8_ilog2(alignment);
+    pub fn align_down(&self, alignment: u32) -> Self {
+        let shift = utils::u32_ilog2(alignment);
 
         // Strip the lower bits by shifting.
         Self::new((self.inner >> shift) << shift)

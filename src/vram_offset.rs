@@ -5,14 +5,17 @@ use core::{fmt, ops};
 
 use super::Vram;
 
-/// Holds the offset (in bytes) or difference between two [`Vram`] addresses.
+/// Holds an offset (in bytes) or difference between two [`Vram`] addresses.
 ///
-/// Note the offset hold by this instance may be negative.
+/// Unlike [`Size`], a `VramOffset` can represent negative offsets, making it
+/// suitable for computing differences between VRAM addresses or for branches
+/// that may go forward or backward.
 ///
-/// This struct can be used to modify a [`Vram`] instance. This can be done by
-/// either the [`add_vram`] function or by using the `+` operator.
+/// This struct can be used to modify a [`Vram`] instance through addition.
+/// It can be added to a VRAM address using the [`add_vram`] method or the `+`
+/// operator.
 ///
-/// To get the raw inner value use the [`inner`] function.
+/// To get the raw inner value use the [`inner`] method.
 ///
 /// # Examples
 ///
@@ -25,7 +28,22 @@ use super::Vram;
 /// assert_eq!(vram + offset, Vram::new(0x800000F0));
 /// ```
 ///
+/// # Determining Branch Direction
+///
+/// `VramOffset` is useful for working with branch offsets:
+///
+/// ```
+/// use address_space::VramOffset;
+///
+/// let forward_branch = VramOffset::new(0x1000);
+/// let backward_branch = VramOffset::new(-0x500);
+///
+/// assert!(forward_branch.is_positive());
+/// assert!(backward_branch.is_negative());
+/// ```
+///
 /// [`Vram`]: crate::vram::Vram
+/// [`Size`]: crate::size::Size
 /// [`add_vram`]: VramOffset::add_vram
 /// [`inner`]: VramOffset::inner
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -37,18 +55,38 @@ pub struct VramOffset {
 
 impl VramOffset {
     /// Constructs a `VramOffset` from a given value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::VramOffset;
+    ///
+    /// let positive = VramOffset::new(0x100);
+    /// let negative = VramOffset::new(-0x50);
+    /// assert_eq!(positive.inner(), 0x100);
+    /// assert_eq!(negative.inner(), -0x50);
+    /// ```
     #[must_use]
     pub const fn new(value: i32) -> Self {
         Self { inner: value }
     }
 
-    /// Returns the internal branch offset value.
+    /// Returns the internal offset value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::VramOffset;
+    ///
+    /// let offset = VramOffset::new(-0x1000);
+    /// assert_eq!(offset.inner(), -0x1000);
+    /// ```
     #[must_use]
     pub const fn inner(&self) -> i32 {
         self.inner
     }
 
-    /// Adds this offset to the passed [`Vram`] value and generates a new
+    /// Adds this offset to the passed [`Vram`] value, generating a new
     /// [`Vram`] value.
     ///
     /// # Examples
@@ -68,7 +106,7 @@ impl VramOffset {
         rhs.add_offset(self)
     }
 
-    /// This offset has value zero.
+    /// Returns whether this offset is zero.
     ///
     /// # Examples
     ///
@@ -86,7 +124,7 @@ impl VramOffset {
         self.inner == 0
     }
 
-    /// This offset is positive.
+    /// Returns whether this offset is positive.
     ///
     /// If this is a branch offset then it can be interpreted as a forward branch.
     ///
@@ -106,7 +144,7 @@ impl VramOffset {
         self.inner > 0
     }
 
-    /// This offset is positive.
+    /// Returns whether this offset is negative.
     ///
     /// If this is a branch offset then it can be interpreted as a backwards branch (i.e. a loop).
     ///

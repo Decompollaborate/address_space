@@ -1,6 +1,98 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
+//! # Address Space
+//!
+//! A Rust crate for working with MIPS address spaces, providing types for managing
+//! ROM and VRAM addresses, sizes, and ranges.
+//!
+//! ## Overview
+//!
+//! This crate provides a collection of types to handle address calculations
+//! for MIPS emulation and decomposition projects:
+//!
+//! - [`Vram`]: Virtual RAM address representation.
+//! - [`VramOffset`]: Offset or difference between VRAM addresses.
+//! - [`Rom`]: ROM address representation.
+//! - [`Size`]: Unsigned size representation.
+//! - [`UserSize`]: Non-zero size wrapper.
+//! - [`GpValue`]: GP register value representation.
+//! - [`AddressRange<T>`]: Generic address range for any address type.
+//! - [`RomVramRange`]: Paired ROM and VRAM range for address translation.
+//!
+//! ### Quick Start
+//!
+//! ```
+//! use address_space::{Vram, Rom, Size, AddressRange, RomVramRange};
+//!
+//! # fn test_func() -> Option<()> {
+//!
+//! // Create addresses
+//! let vram = Vram::new(0x80000000);
+//! let rom = Rom::new(0x1000);
+//!
+//! // Perform arithmetic
+//! let size = Size::new(0x100);
+//! let new_vram = vram + size;
+//! let new_rom = rom + size;
+//!
+//! // Work with ranges
+//! let range = AddressRange::new_size(vram, size)?;
+//! assert_eq!(range.start(), vram);
+//! assert_eq!(range.size(), size);
+//!
+//! // Translate between ROM and VRAM
+//! let size = Size::new(0x4000);
+//! let rom_vram = RomVramRange::new(
+//!     AddressRange::new_size(Rom::new(0x1000), size)?,
+//!     AddressRange::new_size(Vram::new(0x80000000), size)?,
+//!     4,
+//! )?;
+//! let rom_addr = Rom::new(0x1500);
+//! let vram_addr = rom_vram.vram_from_rom(rom_addr);
+//! assert_eq!(vram_addr, Some(Vram::new(0x80000500)));
+//!
+//! # Some(())
+//! # }
+//! # test_func();
+//! ```
+//!
+//! ### Wrapping Arithmetic
+//!
+//! Arithmetic operations on types use wrapping arithmetic by default.
+//!
+//! #### Examples
+//!
+//! ```
+//! use address_space::{Vram, Rom, Size, AddressRange};
+//!
+//! // Wrapping addition
+//! let vram = Vram::new(0x80000000);
+//! let size = Size::new(0x1000);
+//! assert_eq!(vram + size, Vram::new(0x80001000));
+//!
+//! // Subtraction returns Option
+//! let rom1 = Rom::new(0x1100);
+//! let rom2 = Rom::new(0x1000);
+//! assert_eq!(rom1.sub_rom(&rom2), Some(Size::new(0x100)));
+//!
+//! // Subtraction that would underflow returns None
+//! let rom3 = Rom::new(0x1000);
+//! let rom4 = Rom::new(0x1100);
+//! assert_eq!(rom3.sub_rom(&rom4), None);
+//! ```
+//!
+//! ## Features
+//!
+//! - `std`: Enable standard library support.
+//! - `try_from`: Implement `TryFrom` conversions (bumps MSRV to 1.34).
+//! - `error`: Implement the `Error` trait on error types (bumps MSRV to 1.81).
+//! - `serde`: Implement serde `Serialize` and `Deserialize` traits.
+//!
+//! ## `no_std` Support
+//!
+//! This crate is `no_std` and `no_alloc` by default.
+
 /*
 #![warn(clippy::pedantic)]
 #![allow(clippy::inline_always)]
@@ -68,10 +160,10 @@
 #![warn(clippy::missing_assert_message)]
 #![warn(clippy::pattern_type_mismatch)]
 // #![warn(clippy::missing_inline_in_public_items)] // TODO
-// #![warn(missing_docs)] // TODO: change to `deny`
+#![warn(missing_docs)]
 // #![warn(clippy::missing_docs_in_private_items)]
-// #![warn(clippy::doc_markdown)] // ?
-// #![warn(clippy::missing_errors_doc)]
+#![warn(clippy::doc_markdown)] // ?
+#![warn(clippy::missing_errors_doc)]
 #![allow(clippy::pub_with_shorthand)]
 #![warn(clippy::pub_without_shorthand)]
 // #![warn(clippy::option_if_let_else)] // It can get kinda ugly. Reconsider later
@@ -94,7 +186,6 @@
 #![warn(clippy::unwrap_in_result)]
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::panic)]
-// #![warn(clippy::expect_used)]
 #![warn(clippy::semicolon_if_nothing_returned)]
 //
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -121,7 +212,7 @@ pub use self::vram_offset::VramOffset;
 
 pub use self::rom::Rom;
 
-pub use self::size::Size;
+pub use self::size::{ConvertToSizeError, Size};
 pub use self::user_size::UserSize;
 
 pub use self::gp_value::GpValue;

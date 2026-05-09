@@ -5,6 +5,36 @@ use core::{fmt, num::NonZeroU32};
 
 use super::{Rom, Size, Vram};
 
+/// A non-zero size value.
+///
+/// Unlike [`Size`], a `UserSize` is guaranteed to be non-zero, as it uses
+/// [`NonZeroU32`] internally.
+///
+/// A `UserSize` can be added to other `UserSize` values, [`Size`] values,
+/// or to [`Vram`] and [`Rom`] addresses.
+///
+/// It can also be converted from/to a regular [`Size`].
+///
+/// # Examples
+///
+/// ```
+/// use address_space::{UserSize, Size, Vram};
+/// use std::num::NonZeroU32;
+///
+/// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+/// let vram = Vram::new(0x80000000);
+///
+/// // Adding UserSize to VRAM
+/// assert_eq!(user_size.add_vram(&vram), Some(Vram::new(0x80000100)));
+///
+/// // Converting to Size
+/// let size: Size = user_size.into();
+/// assert_eq!(size.inner(), 0x100);
+/// ```
+///
+/// [`Size`]: crate::size::Size
+/// [`Vram`]: crate::vram::Vram
+/// [`Rom`]: crate::rom::Rom
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -13,26 +43,93 @@ pub struct UserSize {
 }
 
 impl UserSize {
+    /// Constructs a `UserSize` from a non-zero value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::UserSize;
+    /// use std::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// assert_eq!(user_size.inner().get(), 0x100);
+    /// ```
     #[must_use]
     pub const fn new(value: NonZeroU32) -> Self {
         Self { inner: value }
     }
 
+    /// Attempts to construct a `UserSize` from a regular `u32` value.
+    ///
+    /// Returns `None` if the value is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::UserSize;
+    ///
+    /// assert!(UserSize::new_checked(0x100).is_some());
+    /// assert!(UserSize::new_checked(0).is_none());
+    /// ```
     #[must_use]
     pub fn new_checked(value: u32) -> Option<Self> {
         Self::new_option(NonZeroU32::new(value))
     }
 
+    /// Constructs a `UserSize` from an `Option<NonZeroU32>`.
+    ///
+    /// Returns `None` if the option is `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::UserSize;
+    /// use std::num::NonZeroU32;
+    ///
+    /// let opt = NonZeroU32::new(0x200);
+    /// assert!(UserSize::new_option(opt).is_some());
+    ///
+    /// assert!(UserSize::new_option(None).is_none());
+    /// ```
     #[must_use]
     pub fn new_option(value: Option<NonZeroU32>) -> Option<Self> {
         value.map(Self::new)
     }
 
+    /// Returns the internal non-zero value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::UserSize;
+    /// use std::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x150).unwrap());
+    /// assert_eq!(user_size.inner().get(), 0x150);
+    /// ```
     #[must_use]
     pub const fn inner(&self) -> NonZeroU32 {
         self.inner
     }
 
+    /// Adds two `UserSize` values together.
+    ///
+    /// Returns `None` if the addition overflows.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::UserSize;
+    /// use std::num::NonZeroU32;
+    ///
+    /// let size1 = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// let size2 = UserSize::new(NonZeroU32::new(0x200).unwrap());
+    ///
+    /// assert_eq!(
+    ///     size1.add_user_size(&size2).unwrap().inner().get(),
+    ///     0x300
+    /// );
+    /// ```
     #[must_use]
     pub fn add_user_size(&self, rhs: &Self) -> Option<Self> {
         let slf = self.inner().get();
@@ -41,6 +138,24 @@ impl UserSize {
         Self::new_option(NonZeroU32::new(temp))
     }
 
+    /// Adds a [`Size`] to this `UserSize`.
+    ///
+    /// Returns `None` if the addition overflows or results in zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{UserSize, Size};
+    /// use std::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// let size = Size::new(0x50);
+    ///
+    /// assert_eq!(
+    ///     user_size.add_size(&size).unwrap().inner().get(),
+    ///     0x150
+    /// );
+    /// ```
     #[must_use]
     pub fn add_size(&self, rhs: &Size) -> Option<Self> {
         let slf = self.inner().get();
@@ -49,6 +164,23 @@ impl UserSize {
         Self::new_option(NonZeroU32::new(temp))
     }
 
+    /// Adds this `UserSize` to a [`Vram`] address, returning a new VRAM address.
+    ///
+    /// Returns `None` if the addition overflows.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{UserSize, Vram};
+    /// use std::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// let vram = Vram::new(0x80000000);
+    ///
+    /// assert_eq!(user_size.add_vram(&vram), Some(Vram::new(0x80000100)));
+    /// ```
+    ///
+    /// [`Vram`]: crate::vram::Vram
     #[must_use]
     pub fn add_vram(&self, rhs: &Vram) -> Option<Vram> {
         let slf = self.inner().get();
@@ -57,6 +189,23 @@ impl UserSize {
         Some(Vram::new(temp))
     }
 
+    /// Adds this `UserSize` to a [`Rom`] address, returning a new ROM address.
+    ///
+    /// Returns `None` if the addition overflows.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{UserSize, Rom};
+    /// use std::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// let rom = Rom::new(0x1000);
+    ///
+    /// assert_eq!(user_size.add_rom(&rom), Some(Rom::new(0x1100)));
+    /// ```
+    ///
+    /// [`Rom`]: crate::rom::Rom
     #[must_use]
     pub fn add_rom(&self, rhs: &Rom) -> Option<Rom> {
         let slf = self.inner().get();

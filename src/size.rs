@@ -8,6 +8,35 @@ use core::convert::TryFrom;
 
 use super::{Rom, Vram, VramOffset};
 
+/// An unsigned size value.
+///
+/// This type represents a size or count of bytes. It is always non-negative
+/// and wraps on overflow.
+///
+/// A `Size` can be added to [`Vram`] or [`Rom`] addresses to produce new
+/// addresses. Multiple `Size` values can also be added together.
+///
+/// To get the raw inner value use the [`inner`] method.
+///
+/// # Examples
+///
+/// ```
+/// use address_space::{Size, Vram, Rom};
+///
+/// let size = Size::new(0x100);
+/// let vram = Vram::new(0x80000000);
+/// let rom = Rom::new(0x1000);
+///
+/// // Adding size to addresses
+/// assert_eq!(vram + size, Vram::new(0x80000100));
+/// assert_eq!(rom + size, Rom::new(0x1100));
+///
+/// // Adding sizes together
+/// let size2 = Size::new(0x200);
+/// assert_eq!(size + size2, Size::new(0x300));
+/// ```
+///
+/// [`inner`]: Size::inner
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -16,11 +45,40 @@ pub struct Size {
 }
 
 impl Size {
+    /// Constructs a `Size` from a given value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// let size = Size::new(0x100);
+    /// assert_eq!(size.inner(), 0x100);
+    /// ```
     #[must_use]
     pub const fn new(value: u32) -> Self {
         Self { inner: value }
     }
 
+    /// Attempts to convert a [`VramOffset`] to a `Size`.
+    ///
+    /// Returns `Err` if the offset is negative.
+    ///
+    /// # Errors
+    ///
+    /// Will return `Err` if `value` is negative.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Size, VramOffset};
+    ///
+    /// let positive_offset = VramOffset::new(0x100);
+    /// assert_eq!(Size::try_from(positive_offset).unwrap(), Size::new(0x100));
+    ///
+    /// let negative_offset = VramOffset::new(-0x50);
+    /// assert!(Size::try_from(negative_offset).is_err());
+    /// ```
     pub fn try_from(value: VramOffset) -> Result<Self, ConvertToSizeError> {
         if value.inner() < 0 {
             Err(ConvertToSizeError {
@@ -31,26 +89,81 @@ impl Size {
         }
     }
 
+    /// Returns the internal size value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// let size = Size::new(0x1234);
+    /// assert_eq!(size.inner(), 0x1234);
+    /// ```
     #[must_use]
     pub const fn inner(&self) -> u32 {
         self.inner
     }
 
+    /// Returns whether this size is zero (empty).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// assert!(Size::new(0).is_empty());
+    /// assert!(!Size::new(1).is_empty());
+    /// ```
     #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.inner == 0
     }
 
+    /// Adds two sizes together.
+    ///
+    /// Wraps on overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// let size1 = Size::new(0x100);
+    /// let size2 = Size::new(0x200);
+    /// assert_eq!(size1.add_size(&size2), Size::new(0x300));
+    /// ```
     #[must_use]
     pub fn add_size(&self, rhs: &Self) -> Self {
         Self::new(self.inner().wrapping_add(rhs.inner()))
     }
 
+    /// Adds this size to a [`Vram`] address, returning a new VRAM address.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Size, Vram};
+    ///
+    /// let size = Size::new(0x100);
+    /// let vram = Vram::new(0x80000000);
+    /// assert_eq!(size.add_vram(&vram), Vram::new(0x80000100));
+    /// ```
     #[must_use]
     pub fn add_vram(&self, rhs: &Vram) -> Vram {
         Vram::new(self.inner().wrapping_add(rhs.inner()))
     }
 
+    /// Adds this size to a [`Rom`] address, returning a new ROM address.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Size, Rom};
+    ///
+    /// let size = Size::new(0x100);
+    /// let rom = Rom::new(0x1000);
+    /// assert_eq!(size.add_rom(&rom), Rom::new(0x1100));
+    /// ```
     #[must_use]
     pub fn add_rom(&self, rhs: &Rom) -> Rom {
         Rom::new(self.inner().wrapping_add(rhs.inner()))
@@ -123,10 +236,15 @@ impl fmt::Display for Size {
     }
 }
 
+/// Error type for conversion failures from [`VramOffset`] to [`Size`].
+///
+/// This error is returned when attempting to convert a negative [`VramOffset`]
+/// to a `Size`, since sizes must be non-negative.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ConvertToSizeError {
     inner: i32,
 }
+
 impl fmt::Display for ConvertToSizeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -136,6 +254,7 @@ impl fmt::Display for ConvertToSizeError {
         )
     }
 }
+
 #[cfg(feature = "error")]
 impl core::error::Error for ConvertToSizeError {}
 
