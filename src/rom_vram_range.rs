@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use super::{AddressRange, Rom, Vram, Size};
+use super::{AddressRange, Rom, Size, Vram};
 
 /// A paired ROM and VRAM address range for address space translation.
 ///
@@ -146,12 +146,7 @@ impl RomVramRange {
     /// assert!(range.is_some());
     /// ```
     #[must_use]
-    pub fn new_size(
-        rom_start: Rom,
-        vram_start: Vram,
-        size: Size,
-        alignment: u32,
-    ) -> Option<Self> {
+    pub fn new_size(rom_start: Rom, vram_start: Vram, size: Size, alignment: u32) -> Option<Self> {
         let rom = AddressRange::new_size(rom_start, size)?;
         let vram = AddressRange::new_size(vram_start, size)?;
         Self::new(rom, vram, alignment)
