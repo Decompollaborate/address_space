@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-10
+
+### Added
+
+- Add `RomVramRange::new_size` method.
+
 ## [0.1.0] - 2026-05-10
 
 ### Added
 
 - Initial release.
 
-[unreleased]: https://github.com/Decompollaborate/address_space/compare/0.1.0...main
+[unreleased]: https://github.com/Decompollaborate/address_space/compare/0.1.1...main
 
+[0.1.1]: https://github.com/Decompollaborate/address_space/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/Decompollaborate/address_space/releases/tag/0.1.0

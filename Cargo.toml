@@ -3,7 +3,7 @@
 
 [package]
 name = "address_space"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 description = "Crate for working with MIPS address spaces, providing types for managing ROM and VRAM addresses, sizes, and ranges."
 authors = [

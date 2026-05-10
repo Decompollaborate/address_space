@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use super::{AddressRange, Rom, Vram};
+use super::{AddressRange, Rom, Vram, Size};
 
 /// A paired ROM and VRAM address range for address space translation.
 ///
@@ -122,6 +122,38 @@ impl RomVramRange {
     ) -> Option<Self> {
         let rom = AddressRange::new(rom_start, rom_end)?;
         let vram = AddressRange::new(vram_start, vram_end)?;
+        Self::new(rom, vram, alignment)
+    }
+
+    /// Creates a new ROM-VRAM range that share the same `Size` for both.
+    ///
+    /// Returns `None` if:
+    /// - The given size overflows the given ROM.
+    /// - The given size overflows the given VRAM.
+    /// - The alignment of the start addresses differs (modulo `alignment`).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{RomVramRange, AddressRange, Rom, Vram, Size};
+    ///
+    /// let rom_start = Rom::new(0x1000);
+    /// let vram_start = Vram::new(0x80000000);
+    /// let size = Size::new(0x100);
+    ///
+    /// let range = RomVramRange::new_size(rom_start, vram_start, size, 4);
+    ///
+    /// assert!(range.is_some());
+    /// ```
+    #[must_use]
+    pub fn new_size(
+        rom_start: Rom,
+        vram_start: Vram,
+        size: Size,
+        alignment: u32,
+    ) -> Option<Self> {
+        let rom = AddressRange::new_size(rom_start, size)?;
+        let vram = AddressRange::new_size(vram_start, size)?;
         Self::new(rom, vram, alignment)
     }
 
