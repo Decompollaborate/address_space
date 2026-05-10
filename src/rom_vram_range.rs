@@ -57,10 +57,8 @@ impl RomVramRange {
         if vram.size() < rom.size() {
             return None;
         }
-        if alignment != 0 {
-            if vram.start().inner() % alignment != rom.start().inner() % alignment {
-                return None;
-            }
+        if alignment != 0 && vram.start().inner() % alignment != rom.start().inner() % alignment {
+            return None;
         }
 
         Some(Self { rom, vram })

@@ -7,4 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[unreleased]: https://github.com/Decompollaborate/address_space/compare/main...main
+## [0.1.0] - 2026-05-10
+
+### Added
+
+- Initial release.
+
+[unreleased]: https://github.com/Decompollaborate/address_space/compare/0.1.0...main
+
+[0.1.0]: https://github.com/Decompollaborate/address_space/releases/tag/0.1.0
