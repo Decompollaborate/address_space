@@ -101,6 +101,16 @@ jobs:
       - name: Run MSRV checker
         run: cargo hack check --rust-version --workspace --all-targets --ignore-private
 
+  semver_check:
+    name: Check SemVer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reposistory
+        uses: actions/checkout@main
+
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+
   publish_address_space:
     name: Publish crate
     runs-on: ubuntu-latest
@@ -111,6 +121,7 @@ jobs:
       - check_doc
       - run_tests
       - msrv
+      - semver_check
 
     steps:
       - name: Checkout reposistory
