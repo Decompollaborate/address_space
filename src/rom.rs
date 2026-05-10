@@ -29,7 +29,7 @@ use super::Size;
 /// assert_eq!(rom1.add_size(&size), Rom::new(0x1100));
 ///
 /// // Subtracting two ROM addresses
-/// assert_eq!(rom2.sub_rom(&rom1), Some(Size::new(0x10)));
+/// assert_eq!(rom2.sub_rom(&rom1), Size::new(0x10));
 /// ```
 ///
 /// [`inner`]: Rom::inner
@@ -85,12 +85,71 @@ impl Rom {
     ///
     /// assert_eq!(rom.add_size(&size), Rom::new(0x1100));
     /// ```
+    ///
+    /// ```
+    /// use address_space::{Rom, Size};
+    ///
+    /// let rom = Rom::new(0x1000);
+    /// let size = Size::new(0xFFFFFFF0);
+    ///
+    /// assert_eq!(rom.add_size(&size), Rom::new(0xFF0));
+    /// ```
     #[must_use]
     pub fn add_size(&self, size: &Size) -> Self {
         size.add_rom(self)
     }
 
+    /// Adds a [`Size`] to this ROM address, generating new ROM address if successful.
+    ///
+    /// Returns `None` on overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Rom, Size};
+    ///
+    /// let rom = Rom::new(0x1000);
+    /// let size = Size::new(0x100);
+    ///
+    /// assert_eq!(rom.add_size_checked(&size), Some(Rom::new(0x1100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Rom, Size};
+    ///
+    /// let rom = Rom::new(0x1000);
+    /// let size = Size::new(0xFFFFFFF0);
+    ///
+    /// assert_eq!(rom.add_size_checked(&size), None);
+    /// ```
+    #[must_use]
+    pub fn add_size_checked(&self, size: &Size) -> Option<Self> {
+        size.add_rom_checked(self)
+    }
+
+    /// Subtracts another ROM address from this one, wrapping on overflow.
+    ///
+    /// In other words, performs `self - rhs`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Rom, Size};
+    ///
+    /// let rom1 = Rom::new(0x1000);
+    /// let rom2 = Rom::new(0x1050);
+    ///
+    /// assert_eq!(rom2.sub_rom(&rom1), Size::new(0x50));
+    /// assert_eq!(rom1.sub_rom(&rom2), Size::new(0xFFFFFFB0));
+    /// ```
+    #[must_use]
+    pub fn sub_rom(&self, rhs: &Self) -> Size {
+        Size::new(self.inner.wrapping_sub(rhs.inner))
+    }
+
     /// Subtracts another ROM address from this one, returning a [`Size`] if successful.
+    ///
+    /// In other words, performs `self - rhs`.
     ///
     /// Returns `None` if the subtraction would underflow (i.e., if `rhs` > `self`).
     ///
@@ -102,11 +161,11 @@ impl Rom {
     /// let rom1 = Rom::new(0x1000);
     /// let rom2 = Rom::new(0x1050);
     ///
-    /// assert_eq!(rom2.sub_rom(&rom1), Some(Size::new(0x50)));
-    /// assert_eq!(rom1.sub_rom(&rom2), None);
+    /// assert_eq!(rom2.sub_rom_checked(&rom1), Some(Size::new(0x50)));
+    /// assert_eq!(rom1.sub_rom_checked(&rom2), None);
     /// ```
     #[must_use]
-    pub fn sub_rom(&self, rhs: &Self) -> Option<Size> {
+    pub fn sub_rom_checked(&self, rhs: &Self) -> Option<Size> {
         self.inner.checked_sub(rhs.inner).map(Size::new)
     }
 }
@@ -114,6 +173,12 @@ impl Rom {
 impl fmt::Debug for Rom {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Rom {{ 0x{:08X} }}", self.inner)
+    }
+}
+
+impl fmt::Display for Rom {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:08X}", self.inner)
     }
 }
 

@@ -218,8 +218,8 @@ impl RomVramRange {
     #[must_use]
     pub fn vram_from_rom(&self, rom: Rom) -> Option<Vram> {
         if self.rom.in_range(rom) {
-            let diff = rom.sub_rom(&self.rom.start())?;
-            Some(self.vram.start() + diff)
+            let diff = rom.sub_rom(&self.rom.start());
+            Some(self.vram.start().add_size(&diff))
         } else {
             None
         }
@@ -244,12 +244,16 @@ impl RomVramRange {
     /// ```
     #[must_use]
     pub fn rom_from_vram(&self, vram: Vram) -> Option<Rom> {
-        let diff = vram.sub_vram(&self.vram.start())?;
+        if self.vram.in_range(vram) {
+            let diff = vram.sub_vram(&self.vram.start());
 
-        let rom = self.rom.start().add_size(&diff);
-        // VRAM may be larger than ROM, so we need to check this
-        if self.rom.in_range(rom) {
-            Some(rom)
+            let rom = self.rom.start().add_size(&diff);
+            // VRAM may be larger than ROM, so we need to check this
+            if self.rom.in_range(rom) {
+                Some(rom)
+            } else {
+                None
+            }
         } else {
             None
         }

@@ -89,6 +89,90 @@ impl Vram {
     pub const fn is_null(&self) -> bool {
         self.inner == 0
     }
+}
+
+impl Vram {
+    /// Adds a [`Size`] to this VRAM address, generating a new VRAM address.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram = Vram::new(0x80001000);
+    /// let size = Size::new(0x100);
+    ///
+    /// assert_eq!(vram.add_size(&size), Vram::new(0x80001100));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram = Vram::new(0x80001000);
+    /// let size = Size::new(0x88880000);
+    ///
+    /// assert_eq!(vram.add_size(&size), Vram::new(0x08881000));
+    /// ```
+    #[must_use]
+    pub fn add_size(&self, size: &Size) -> Self {
+        size.add_vram(self)
+    }
+
+    /// Adds a [`Size`] to this VRAM address, generating new VRAM address if successful.
+    ///
+    /// Returns `None` on overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram = Vram::new(0x80001000);
+    /// let size = Size::new(0x100);
+    ///
+    /// assert_eq!(vram.add_size_checked(&size), Some(Vram::new(0x80001100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram = Vram::new(0x80001000);
+    /// let size = Size::new(0xFFFFFFF0);
+    ///
+    /// assert_eq!(vram.add_size_checked(&size), None);
+    /// ```
+    #[must_use]
+    pub fn add_size_checked(&self, size: &Size) -> Option<Self> {
+        size.add_vram_checked(self)
+    }
+
+    /// Subtracts another VRAM address from this one, wrapping on overflow.
+    ///
+    /// In other words, performs `self - rhs`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram1 = Vram::new(0x80000100);
+    /// let vram2 = Vram::new(0x80000000);
+    ///
+    /// assert_eq!(vram1.sub_vram(&vram2), Size::new(0x100));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Vram, Size};
+    ///
+    /// let vram1 = Vram::new(0x80000400);
+    /// let vram2 = Vram::new(0x80000600);
+    ///
+    /// assert_eq!(vram1.sub_vram(&vram2), Size::new(0xFFFFFE00));
+    /// ```
+    #[must_use]
+    pub fn sub_vram(&self, rhs: &Self) -> Size {
+        Size::new(self.inner.wrapping_sub(rhs.inner))
+    }
 
     /// Subtracts another VRAM address from this one, returning a [`Size`] if successful.
     ///
@@ -104,7 +188,7 @@ impl Vram {
     /// let vram1 = Vram::new(0x80000100);
     /// let vram2 = Vram::new(0x80000000);
     ///
-    /// assert_eq!(vram1.sub_vram(&vram2), Some(Size::new(0x100)));
+    /// assert_eq!(vram1.sub_vram_checked(&vram2), Some(Size::new(0x100)));
     /// ```
     ///
     /// ```
@@ -113,10 +197,10 @@ impl Vram {
     /// let vram1 = Vram::new(0x80000400);
     /// let vram2 = Vram::new(0x80000600);
     ///
-    /// assert_eq!(vram1.sub_vram(&vram2), None);
+    /// assert_eq!(vram1.sub_vram_checked(&vram2), None);
     /// ```
     #[must_use]
-    pub fn sub_vram(&self, rhs: &Self) -> Option<Size> {
+    pub fn sub_vram_checked(&self, rhs: &Self) -> Option<Size> {
         self.inner.checked_sub(rhs.inner).map(Size::new)
     }
 

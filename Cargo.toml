@@ -5,7 +5,7 @@
 name = "address_space"
 version = "0.1.0"
 edition = "2018"
-description = ""
+description = "Crate for working with MIPS address spaces, providing types for managing ROM and VRAM addresses, sizes, and ranges."
 authors = [
     "Anghelo Carvajal <angheloalf95@gmail.com>",
 ]
@@ -13,6 +13,10 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/Decompollaborate/address_space"
 readme = "README.md"
 keywords = [
+    "address",
+    "mips",
+    "rom",
+    "vram",
 ]
 categories = [
     "no-std",

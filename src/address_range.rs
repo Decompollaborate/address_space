@@ -140,10 +140,7 @@ impl AddressRange<Vram> {
     /// ```
     #[must_use]
     pub fn size(&self) -> Size {
-        #[allow(clippy::missing_panics_doc)]
-        self.end
-            .sub_vram(&self.start)
-            .expect("This can't panic because we know `end` is larger than `start`")
+        self.end.sub_vram(&self.start)
     }
 }
 
@@ -160,10 +157,7 @@ impl AddressRange<Rom> {
     /// ```
     #[must_use]
     pub fn size(&self) -> Size {
-        #[allow(clippy::missing_panics_doc)]
-        self.end
-            .sub_rom(&self.start)
-            .expect("This can't panic because we know `end` is larger than `start`")
+        self.end.sub_rom(&self.start)
     }
 }
 

@@ -6,7 +6,7 @@ ROM and VRAM addresses, sizes, and ranges.
 ## Overview
 
 This crate provides a collection of types to handle address calculations for
-MIPS assembly analisys and handling:
+MIPS assembly analysis and handling:
 
 - `Vram`: Virtual RAM address representation.
 - `Rom`: ROM address representation.
@@ -20,7 +20,7 @@ MIPS assembly analisys and handling:
 ### Quick Start
 
 ```rust
-use address_space::{Vram, Rom, Size, AddressRange};
+use address_space::{Vram, Rom, Size, AddressRange, RomVramRange};
 
 // Create addresses
 let vram = Vram::new(0x80000000);
@@ -35,9 +35,9 @@ let new_rom = rom + size;    // Rom::new(0x1100)
 let range = AddressRange::new_size(vram, size)?;
 assert_eq!(range.start(), vram);
 assert_eq!(range.size(), size);
-assert_eq!(range.end(), Some(Vram::new(0x80000100)));
+assert_eq!(range.end(), Vram::new(0x80000100));
 
-// Translate between ROM and VRAM
+// Convert between ROM and VRAM
 let size = Size::new(0x4000);
 let rom_vram = RomVramRange::new(
     AddressRange::new_size(Rom::new(0x1000), size)?,
@@ -60,23 +60,17 @@ use address_space::{Vram, Rom, Size};
 
 // Wrapping addition
 let vram = Vram::new(0x80000000);
-let size = Size::new(0x1000);
-assert_eq!(vram + size, Vram::new(0x80001000));
+let size = Size::new(0x80001000);
+assert_eq!(vram + size, Vram::new(0x1000));
 
-// Adding sizes together (also wraps)
 let size1 = Size::new(0xFFFF0000);
 let size2 = Size::new(0x00010000);
 assert_eq!(size1 + size2, Size::new(0)); // wraps around
 
-// Subtraction returns Option
-let rom1 = Rom::new(0x1100);
-let rom2 = Rom::new(0x1000);
-assert_eq!(rom1.sub_rom(&rom2), Some(Size::new(0x100)));
-
-// Subtraction that would underflow returns None
+// Wrapping subtraction
 let rom3 = Rom::new(0x1000);
 let rom4 = Rom::new(0x1100);
-assert_eq!(rom3.sub_rom(&rom4), None);
+assert_eq!(rom3.sub_rom(&rom4), Size::new(0xFFFFFF00));
 ```
 
 ## Crate features

@@ -139,6 +139,8 @@ impl Size {
 
     /// Adds this size to a [`Vram`] address, returning a new VRAM address.
     ///
+    /// Wraps on overflow.
+    ///
     /// # Examples
     ///
     /// ```
@@ -148,12 +150,49 @@ impl Size {
     /// let vram = Vram::new(0x80000000);
     /// assert_eq!(size.add_vram(&vram), Vram::new(0x80000100));
     /// ```
+    ///
+    /// ```
+    /// use address_space::{Size, Vram};
+    ///
+    /// let size = Size::new(0x80000100);
+    /// let vram = Vram::new(0x80000000);
+    /// assert_eq!(size.add_vram(&vram), Vram::new(0x100));
+    /// ```
     #[must_use]
     pub fn add_vram(&self, rhs: &Vram) -> Vram {
         Vram::new(self.inner().wrapping_add(rhs.inner()))
     }
 
+    /// Adds this size to a [`Vram`] address, returning a VRAM address if
+    /// successful.
+    ///
+    /// Returns `None` if the addition would overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Size, Vram};
+    ///
+    /// let size = Size::new(0x100);
+    /// let vram = Vram::new(0x80000000);
+    /// assert_eq!(size.add_vram_checked(&vram), Some(Vram::new(0x80000100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Size, Vram};
+    ///
+    /// let size = Size::new(0x80000100);
+    /// let vram = Vram::new(0x80000000);
+    /// assert_eq!(size.add_vram_checked(&vram), None);
+    /// ```
+    #[must_use]
+    pub fn add_vram_checked(&self, rhs: &Vram) -> Option<Vram> {
+        self.inner().checked_add(rhs.inner()).map(Vram::new)
+    }
+
     /// Adds this size to a [`Rom`] address, returning a new ROM address.
+    ///
+    /// Wraps on overflow.
     ///
     /// # Examples
     ///
@@ -164,9 +203,44 @@ impl Size {
     /// let rom = Rom::new(0x1000);
     /// assert_eq!(size.add_rom(&rom), Rom::new(0x1100));
     /// ```
+    ///
+    /// ```
+    /// use address_space::{Size, Rom};
+    ///
+    /// let size = Size::new(0xFFFFFFF0);
+    /// let rom = Rom::new(0x1000);
+    /// assert_eq!(size.add_rom(&rom), Rom::new(0xFF0));
+    /// ```
     #[must_use]
     pub fn add_rom(&self, rhs: &Rom) -> Rom {
         Rom::new(self.inner().wrapping_add(rhs.inner()))
+    }
+
+    /// Adds this size to a [`Rom`] address, returning a ROM address if
+    /// successful.
+    ///
+    /// Returns `None` if the addition would overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{Size, Rom};
+    ///
+    /// let size = Size::new(0x100);
+    /// let rom = Rom::new(0x1000);
+    /// assert_eq!(size.add_rom_checked(&rom), Some(Rom::new(0x1100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{Size, Rom};
+    ///
+    /// let size = Size::new(0xFFFFFFF0);
+    /// let rom = Rom::new(0x1000);
+    /// assert_eq!(size.add_rom_checked(&rom), None);
+    /// ```
+    #[must_use]
+    pub fn add_rom_checked(&self, rhs: &Rom) -> Option<Rom> {
+        self.inner().checked_add(rhs.inner()).map(Rom::new)
     }
 }
 

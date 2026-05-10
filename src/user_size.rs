@@ -19,13 +19,13 @@ use super::{Rom, Size, Vram};
 ///
 /// ```
 /// use address_space::{UserSize, Size, Vram};
-/// use std::num::NonZeroU32;
+/// use core::num::NonZeroU32;
 ///
 /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
 /// let vram = Vram::new(0x80000000);
 ///
 /// // Adding UserSize to VRAM
-/// assert_eq!(user_size.add_vram(&vram), Some(Vram::new(0x80000100)));
+/// assert_eq!(user_size.add_vram(&vram), Vram::new(0x80000100));
 ///
 /// // Converting to Size
 /// let size: Size = user_size.into();
@@ -49,7 +49,7 @@ impl UserSize {
     ///
     /// ```
     /// use address_space::UserSize;
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
     /// assert_eq!(user_size.inner().get(), 0x100);
@@ -84,7 +84,7 @@ impl UserSize {
     ///
     /// ```
     /// use address_space::UserSize;
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let opt = NonZeroU32::new(0x200);
     /// assert!(UserSize::new_option(opt).is_some());
@@ -102,7 +102,7 @@ impl UserSize {
     ///
     /// ```
     /// use address_space::UserSize;
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let user_size = UserSize::new(NonZeroU32::new(0x150).unwrap());
     /// assert_eq!(user_size.inner().get(), 0x150);
@@ -111,7 +111,9 @@ impl UserSize {
     pub const fn inner(&self) -> NonZeroU32 {
         self.inner
     }
+}
 
+impl UserSize {
     /// Adds two `UserSize` values together.
     ///
     /// Returns `None` if the addition overflows.
@@ -120,7 +122,7 @@ impl UserSize {
     ///
     /// ```
     /// use address_space::UserSize;
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let size1 = UserSize::new(NonZeroU32::new(0x100).unwrap());
     /// let size2 = UserSize::new(NonZeroU32::new(0x200).unwrap());
@@ -146,7 +148,7 @@ impl UserSize {
     ///
     /// ```
     /// use address_space::{UserSize, Size};
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
     /// let size = Size::new(0x50);
@@ -166,52 +168,140 @@ impl UserSize {
 
     /// Adds this `UserSize` to a [`Vram`] address, returning a new VRAM address.
     ///
-    /// Returns `None` if the addition overflows.
+    /// Wraps on overflow.
     ///
     /// # Examples
     ///
     /// ```
     /// use address_space::{UserSize, Vram};
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
     /// let vram = Vram::new(0x80000000);
     ///
-    /// assert_eq!(user_size.add_vram(&vram), Some(Vram::new(0x80000100)));
+    /// assert_eq!(user_size.add_vram(&vram), Vram::new(0x80000100));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{UserSize, Vram};
+    /// use core::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x80000100).unwrap());
+    /// let vram = Vram::new(0x80000000);
+    ///
+    /// assert_eq!(user_size.add_vram(&vram), Vram::new(0x100));
     /// ```
     ///
     /// [`Vram`]: crate::vram::Vram
     #[must_use]
-    pub fn add_vram(&self, rhs: &Vram) -> Option<Vram> {
+    pub fn add_vram(&self, rhs: &Vram) -> Vram {
         let slf = self.inner().get();
-        let temp = slf.checked_add(rhs.inner())?;
 
-        Some(Vram::new(temp))
+        Vram::new(slf.wrapping_add(rhs.inner()))
+    }
+
+    /// Adds this `UserSize` to a [`Vram`] address, rreturning a VRAM address
+    /// if successful.
+    ///
+    /// Returns `None` if the addition would overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{UserSize, Vram};
+    /// use core::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// let vram = Vram::new(0x80000000);
+    ///
+    /// assert_eq!(user_size.add_vram_checked(&vram), Some(Vram::new(0x80000100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{UserSize, Vram};
+    /// use core::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x80000100).unwrap());
+    /// let vram = Vram::new(0x80000000);
+    ///
+    /// assert_eq!(user_size.add_vram_checked(&vram), None);
+    /// ```
+    ///
+    /// [`Vram`]: crate::vram::Vram
+    #[must_use]
+    pub fn add_vram_checked(&self, rhs: &Vram) -> Option<Vram> {
+        let slf = self.inner().get();
+
+        slf.checked_add(rhs.inner()).map(Vram::new)
     }
 
     /// Adds this `UserSize` to a [`Rom`] address, returning a new ROM address.
     ///
-    /// Returns `None` if the addition overflows.
+    /// Wraps on overflow.
     ///
     /// # Examples
     ///
     /// ```
     /// use address_space::{UserSize, Rom};
-    /// use std::num::NonZeroU32;
+    /// use core::num::NonZeroU32;
     ///
     /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
     /// let rom = Rom::new(0x1000);
     ///
-    /// assert_eq!(user_size.add_rom(&rom), Some(Rom::new(0x1100)));
+    /// assert_eq!(user_size.add_rom(&rom), Rom::new(0x1100));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{UserSize, Rom};
+    /// use core::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0xFFFFFFF0).unwrap());
+    /// let rom = Rom::new(0x1000);
+    ///
+    /// assert_eq!(user_size.add_rom(&rom), Rom::new(0xFF0));
     /// ```
     ///
     /// [`Rom`]: crate::rom::Rom
     #[must_use]
-    pub fn add_rom(&self, rhs: &Rom) -> Option<Rom> {
+    pub fn add_rom(&self, rhs: &Rom) -> Rom {
         let slf = self.inner().get();
-        let temp = slf.checked_add(rhs.inner())?;
 
-        Some(Rom::new(temp))
+        Rom::new(slf.wrapping_add(rhs.inner()))
+    }
+
+    /// Adds this `UserSize` to a [`Rom`] address, returning a ROM address if
+    /// successful.
+    ///
+    /// Returns `None` if the addition would overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::{UserSize, Rom};
+    /// use core::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0x100).unwrap());
+    /// let rom = Rom::new(0x1000);
+    ///
+    /// assert_eq!(user_size.add_rom_checked(&rom), Some(Rom::new(0x1100)));
+    /// ```
+    ///
+    /// ```
+    /// use address_space::{UserSize, Rom};
+    /// use core::num::NonZeroU32;
+    ///
+    /// let user_size = UserSize::new(NonZeroU32::new(0xFFFFFFF0).unwrap());
+    /// let rom = Rom::new(0x1000);
+    ///
+    /// assert_eq!(user_size.add_rom_checked(&rom), None);
+    /// ```
+    ///
+    /// [`Rom`]: crate::rom::Rom
+    #[must_use]
+    pub fn add_rom_checked(&self, rhs: &Rom) -> Option<Rom> {
+        let slf = self.inner().get();
+
+        slf.checked_add(rhs.inner()).map(Rom::new)
     }
 }
 
