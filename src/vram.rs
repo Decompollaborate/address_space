@@ -72,6 +72,24 @@ impl Vram {
         self.inner
     }
 
+    /// Check if the current VRAM is a NULL pointer (zero).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Vram;
+    ///
+    /// let vram = Vram::new(0x80000ABC);
+    /// assert!(!vram.is_null());
+    ///
+    /// let vram = Vram::new(0);
+    /// assert!(vram.is_null());
+    /// ```
+    #[must_use]
+    pub const fn is_null(&self) -> bool {
+        self.inner == 0
+    }
+
     /// Subtracts another VRAM address from this one, returning a [`Size`] if successful.
     ///
     /// In other words, performs `self - rhs`.

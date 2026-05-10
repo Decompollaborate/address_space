@@ -40,6 +40,7 @@ impl RomVramRange {
     /// Returns `None` if:
     /// - The VRAM range is smaller than the ROM range.
     /// - The alignment of the start addresses differs (modulo `alignment`).
+    ///   - This check is skipped if `alignment` is zero.
     ///
     /// # Examples
     ///
@@ -56,8 +57,10 @@ impl RomVramRange {
         if vram.size() < rom.size() {
             return None;
         }
-        if vram.start().inner() % alignment != rom.start().inner() % alignment {
-            return None;
+        if alignment != 0 {
+            if vram.start().inner() % alignment != rom.start().inner() % alignment {
+                return None;
+            }
         }
 
         Some(Self { rom, vram })
