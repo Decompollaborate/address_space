@@ -6,7 +6,7 @@ use core::{fmt, ops};
 #[cfg(feature = "try_from")]
 use core::convert::TryFrom;
 
-use super::{Rom, Vram, VramOffset};
+use super::{Rom, UserSize, Vram, VramOffset};
 
 /// An unsigned size value.
 ///
@@ -137,6 +137,60 @@ impl Size {
         Self::new(self.inner().wrapping_add(rhs.inner()))
     }
 
+    /// Adds two sizes together, if successful.
+    ///
+    /// Returns `None` on overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// let size1 = Size::new(0x100);
+    /// let size2 = Size::new(0x200);
+    /// assert_eq!(size1.add_size_checked(&size2), Size::new(0x300));
+    /// ```
+    #[must_use]
+    pub fn add_size_checked(&self, rhs: &Self) -> Option<Self> {
+        self.inner().checked_add(rhs.inner()).map(Self::new)
+    }
+
+    /// Adds two sizes together.
+    ///
+    /// Wraps on overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// let size1 = Size::new(0x100);
+    /// let size2 = Size::new(0x200);
+    /// assert_eq!(size1.add_size(&size2), Size::new(0x300));
+    /// ```
+    #[must_use]
+    pub fn add_user_size(&self, rhs: &UserSize) -> Self {
+        Self::new(self.inner().wrapping_add(rhs.inner().get()))
+    }
+
+    /// Adds two sizes together, if successful.
+    ///
+    /// Returns `None` on overflow.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use address_space::Size;
+    ///
+    /// let size1 = Size::new(0x100);
+    /// let size2 = Size::new(0x200);
+    /// assert_eq!(size1.add_size_checked(&size2), Size::new(0x300));
+    /// ```
+    #[must_use]
+    pub fn add_user_size_checked(&self, rhs: &UserSize) -> Option<Self> {
+        self.inner().checked_add(rhs.inner().get()).map(Self::new)
+    }
+
     /// Adds this size to a [`Vram`] address, returning a new VRAM address.
     ///
     /// Wraps on overflow.
@@ -254,6 +308,27 @@ impl ops::Add<Self> for Size {
 impl ops::AddAssign for Size {
     fn add_assign(&mut self, rhs: Self) {
         *self = *self + rhs;
+    }
+}
+
+impl ops::Add<UserSize> for Size {
+    type Output = Self;
+
+    fn add(self, rhs: UserSize) -> Self::Output {
+        self.add_user_size(&rhs)
+    }
+}
+impl ops::AddAssign<UserSize> for Size {
+    fn add_assign(&mut self, rhs: UserSize) {
+        *self = *self + rhs;
+    }
+}
+
+impl ops::Add<Size> for UserSize {
+    type Output = Size;
+
+    fn add(self, rhs: Size) -> Self::Output {
+        rhs.add_user_size(&self)
     }
 }
 

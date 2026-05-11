@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: © 2026 Decompollaborate */
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 
-use core::{fmt, num::NonZeroU32};
+use core::{fmt, num::NonZeroU32, ops};
 
 use super::{Rom, Size, Vram};
 
@@ -114,7 +114,7 @@ impl UserSize {
 }
 
 impl UserSize {
-    /// Adds two `UserSize` values together.
+    /// Adds two `UserSize` values together, if successful.
     ///
     /// Returns `None` if the addition overflows.
     ///
@@ -128,12 +128,12 @@ impl UserSize {
     /// let size2 = UserSize::new(NonZeroU32::new(0x200).unwrap());
     ///
     /// assert_eq!(
-    ///     size1.add_user_size(&size2).unwrap().inner().get(),
+    ///     size1.add_user_size_checked(&size2).unwrap().inner().get(),
     ///     0x300
     /// );
     /// ```
     #[must_use]
-    pub fn add_user_size(&self, rhs: &Self) -> Option<Self> {
+    pub fn add_user_size_checked(&self, rhs: &Self) -> Option<Self> {
         let slf = self.inner().get();
         let temp = slf.checked_add(rhs.inner().get())?;
 
@@ -154,12 +154,12 @@ impl UserSize {
     /// let size = Size::new(0x50);
     ///
     /// assert_eq!(
-    ///     user_size.add_size(&size).unwrap().inner().get(),
+    ///     user_size.add_size_checked(&size).unwrap().inner().get(),
     ///     0x150
     /// );
     /// ```
     #[must_use]
-    pub fn add_size(&self, rhs: &Size) -> Option<Self> {
+    pub fn add_size_checked(&self, rhs: &Size) -> Option<Self> {
         let slf = self.inner().get();
         let temp = slf.checked_add(rhs.inner())?;
 
@@ -302,6 +302,48 @@ impl UserSize {
         let slf = self.inner().get();
 
         slf.checked_add(rhs.inner()).map(Rom::new)
+    }
+}
+
+impl ops::Add<Vram> for UserSize {
+    type Output = Vram;
+
+    fn add(self, rhs: Vram) -> Self::Output {
+        self.add_vram(&rhs)
+    }
+}
+
+impl ops::Add<UserSize> for Vram {
+    type Output = Self;
+
+    fn add(self, rhs: UserSize) -> Self::Output {
+        rhs.add_vram(&self)
+    }
+}
+impl ops::AddAssign<UserSize> for Vram {
+    fn add_assign(&mut self, rhs: UserSize) {
+        *self = *self + rhs;
+    }
+}
+
+impl ops::Add<Rom> for UserSize {
+    type Output = Rom;
+
+    fn add(self, rhs: Rom) -> Self::Output {
+        self.add_rom(&rhs)
+    }
+}
+
+impl ops::Add<UserSize> for Rom {
+    type Output = Self;
+
+    fn add(self, rhs: UserSize) -> Self::Output {
+        rhs.add_rom(&self)
+    }
+}
+impl ops::AddAssign<UserSize> for Rom {
+    fn add_assign(&mut self, rhs: UserSize) {
+        *self = *self + rhs;
     }
 }
 
