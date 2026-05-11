@@ -148,7 +148,7 @@ impl Size {
     ///
     /// let size1 = Size::new(0x100);
     /// let size2 = Size::new(0x200);
-    /// assert_eq!(size1.add_size_checked(&size2), Size::new(0x300));
+    /// assert_eq!(size1.add_size_checked(&size2), Some(Size::new(0x300)));
     /// ```
     #[must_use]
     pub fn add_size_checked(&self, rhs: &Self) -> Option<Self> {
@@ -184,7 +184,7 @@ impl Size {
     ///
     /// let size1 = Size::new(0x100);
     /// let size2 = Size::new(0x200);
-    /// assert_eq!(size1.add_size_checked(&size2), Size::new(0x300));
+    /// assert_eq!(size1.add_size_checked(&size2), Some(Size::new(0x300)));
     /// ```
     #[must_use]
     pub fn add_user_size_checked(&self, rhs: &UserSize) -> Option<Self> {
